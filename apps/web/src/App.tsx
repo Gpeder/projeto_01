@@ -1,4 +1,24 @@
+import { useEffect, useRef, useState } from 'react'
+import Button from './components/ui/Button'
+
 function App() {
+  const [demoStatus, setDemoStatus] = useState<'idle' | 'loading' | 'complete'>('idle')
+  const demoTimeout = useRef<ReturnType<typeof window.setTimeout> | null>(null)
+
+  useEffect(() => () => {
+    if (demoTimeout.current !== null) window.clearTimeout(demoTimeout.current)
+  }, [])
+
+  function handleDemoClick() {
+    if (demoStatus === 'loading') return
+
+    setDemoStatus('loading')
+    demoTimeout.current = window.setTimeout(() => {
+      setDemoStatus('complete')
+      demoTimeout.current = null
+    }, 1500)
+  }
+
   return (
     <main className="mx-auto max-w-3xl space-y-8 px-6 py-12 sm:py-16">
       <header className="space-y-3">
@@ -24,12 +44,7 @@ function App() {
         <p className="text-muted">
           O texto secundário mantém a hierarquia visual sem perder a legibilidade.
         </p>
-        <button
-          type="button"
-          className="min-h-11 cursor-pointer touch-manipulation rounded-lg border border-primary bg-primary px-5 py-2 font-semibold text-on-primary hover:opacity-90"
-        >
-          Botão de amostra
-        </button>
+        <Button>Botão de amostra</Button>
       </section>
 
       <section aria-labelledby="surfaces-title" className="space-y-4">
@@ -57,6 +72,57 @@ function App() {
         <p className="text-sm text-muted">
           Use a tecla Tab para conferir o indicador de foco no botão.
         </p>
+      </section>
+
+      <section aria-labelledby="buttons-title" className="space-y-6 border-t border-border pt-6">
+        <div className="space-y-2">
+          <h2 id="buttons-title" className="text-xl">Botões</h2>
+          <p className="text-muted">Variantes, tamanhos e estados de interação.</p>
+        </div>
+
+        <div className="space-y-3">
+          <h3 className="text-base">Variantes</h3>
+          <div className="flex flex-wrap items-center gap-3">
+            <Button>Primário</Button>
+            <Button variant="secondary">Secundário</Button>
+            <Button variant="ghost">Discreto</Button>
+            <Button variant="destructive">Destrutivo</Button>
+          </div>
+        </div>
+
+        <div className="space-y-3">
+          <h3 className="text-base">Tamanhos</h3>
+          <div className="flex flex-wrap items-center gap-3">
+            <Button size="sm" variant="secondary">Pequeno</Button>
+            <Button size="md" variant="secondary">Médio</Button>
+            <Button size="lg" variant="secondary">Grande</Button>
+          </div>
+        </div>
+
+        <div className="space-y-3">
+          <h3 className="text-base">Estados</h3>
+          <div className="flex flex-wrap items-center gap-3">
+            <Button disabled>Indisponível</Button>
+            <Button loading>Ação em andamento</Button>
+          </div>
+        </div>
+
+        <div className="space-y-3">
+          <h3 className="text-base">Experimente o carregamento</h3>
+          <p className="text-muted">
+            Acione o botão com clique, Enter ou Espaço. Ele ficará ocupado por um instante.
+          </p>
+          <Button
+            loading={demoStatus === 'loading'}
+            loadingLabel="Processando…"
+            onClick={handleDemoClick}
+          >
+            Simular ação
+          </Button>
+          <p role="status" className="min-h-6 text-sm text-muted">
+            {demoStatus === 'complete' ? 'Demonstração concluída. Você pode repetir.' : ''}
+          </p>
+        </div>
       </section>
     </main>
   )

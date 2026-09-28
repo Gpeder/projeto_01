@@ -5,6 +5,11 @@
   --font-heading: "Manrope", system-ui, sans-serif;
 }
 
+@theme static {
+  --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+  --ease-out: cubic-bezier(0, 0, 0.2, 1);
+}
+
 @theme inline {
   --color-background: var(--background);
   --color-surface: var(--surface);
@@ -13,12 +18,14 @@
   --color-muted: var(--muted);
   --color-border: var(--border);
   --color-control: var(--control);
+  --color-control-strong: var(--control-strong);
   --color-primary: var(--primary);
   --color-on-primary: var(--on-primary);
   --color-focus: var(--focus);
   --color-success: var(--success);
   --color-warning: var(--warning);
   --color-error: var(--error);
+  --color-on-error: var(--on-error);
 }
 
 @custom-variant dark {
@@ -36,6 +43,9 @@
 @layer base {
   :root {
     color-scheme: light;
+    --duration-fast: 120ms;
+    --duration-normal: 180ms;
+    --duration-slow: 280ms;
     --background: #f7f7f5;
     --surface: #ffffff;
     --surface-muted: #f0f1ee;
@@ -43,12 +53,14 @@
     --muted: #62666d;
     --border: #e2e3e0;
     --control: #b9bcb7;
+    --control-strong: #858980;
     --primary: #242629;
     --on-primary: #ffffff;
     --focus: #375f85;
     --success: #286344;
     --warning: #855400;
     --error: #a63232;
+    --on-error: var(--on-primary);
   }
 
   :root[data-theme="dark"] {
@@ -60,6 +72,7 @@
     --muted: #b0b5ba;
     --border: #373c41;
     --control: #626970;
+    --control-strong: #7a8188;
     --primary: #e8eae5;
     --on-primary: #181a1c;
     --focus: #a7c7e7;
@@ -78,6 +91,7 @@
       --muted: #b0b5ba;
       --border: #373c41;
       --control: #626970;
+      --control-strong: #7a8188;
       --primary: #e8eae5;
       --on-primary: #181a1c;
       --focus: #a7c7e7;
