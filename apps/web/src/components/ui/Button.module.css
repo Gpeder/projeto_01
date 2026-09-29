@@ -62,7 +62,6 @@
     font-size: 1rem;
   }
 
-  /* Os dois rótulos ocupam a mesma célula e reservam a maior largura. */
   .label,
   .loadingLabel {
     grid-area: label;
@@ -74,7 +73,6 @@
   }
 
   .button[data-loading='true'] .label {
-    /* Opacidade preserva o nome acessível original do botão. */
     opacity: 0;
   }
 

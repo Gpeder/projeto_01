@@ -1,7 +1,7 @@
 # Projeto
 
 Base de monorepo com pnpm workspaces. O frontend usa React + TypeScript strict +
-Vite e Tailwind CSS 4.3.3, com uma amostra de tipografia e cores para revisão visual.
+Vite e Tailwind CSS 4.3.3, com navegação inicial e uma demonstração da base visual.
 
 ## Executar
 
@@ -73,7 +73,8 @@ document.documentElement.removeAttribute('data-theme') // Volta ao sistema
 ```
 
 O atributo controla também `color-scheme` e a variante `dark:` do Tailwind.
-Não há seletor visual nem persistência. O `App` é apenas uma amostra desta etapa.
+Não há seletor visual nem persistência. As amostras ficam em `/dev/components`,
+disponível somente com o servidor de desenvolvimento.
 
 ## Movimento e Button
 
@@ -117,9 +118,24 @@ preservado. Os dois rótulos reservam espaço desde o início para não alterar 
 largura ao alternar `loading`; mantenha `children` e `loadingLabel` estáveis
 durante a operação. Se mudar o próprio conteúdo, seu tamanho pode mudar.
 
-A seção de botões no `App` demonstra os estados e uma operação simulada de 1,5s.
+A seção de botões em `/dev/components` demonstra os estados e uma operação simulada de 1,5s.
 O estado de carregamento pertence ao consumidor; o Button não inicia operações
 nem gerencia o estado do formulário.
+
+## Navegação
+
+React Router no modo declarativo gerencia as rotas. `/` abre **Visão geral**,
+que contém somente o título. É o único destino da sidebar e seu link recebe
+`aria-current="page"`. A demonstração em `/dev/components` fica fora do menu e
+não integra o JavaScript da compilação de produção.
+
+`src/components/layout` contém `AppLayout` e `Sidebar`; `src/pages` contém as
+páginas. O layout usa classes Tailwind e os tokens existentes. A sidebar tem
+224px no desktop; abaixo de 801px, o botão **Abrir menu** abre um `dialog` modal.
+O diálogo bloqueia interação com o conteúdo atrás e a rolagem da página.
+**Fechar**, Escape ou a seleção de **Visão geral** fecham o menu e devolvem o foco
+ao acionador. Ao mudar para desktop com o menu aberto, ele fecha e o link ativo
+recebe foco. As transições respeitam `prefers-reduced-motion`.
 
 ## Organização
 
