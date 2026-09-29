@@ -4,12 +4,27 @@ import Sidebar from './Sidebar'
 
 export default function AppLayout({ children }: { children: ReactNode }) {
   const [menuOpen, setMenuOpen] = useState(false)
+  const [isDarkTheme, setIsDarkTheme] = useState(() => {
+    const theme = document.documentElement.dataset.theme
+    return theme ? theme === 'dark' : window.matchMedia('(prefers-color-scheme: dark)').matches
+  })
   const menuId = useId()
   const menuTitleId = useId()
   const dialogRef = useRef<HTMLDialogElement>(null)
   const triggerRef = useRef<HTMLButtonElement>(null)
   const closeButtonRef = useRef<HTMLButtonElement>(null)
   const desktopSidebarRef = useRef<HTMLElement>(null)
+
+  useEffect(() => {
+    const systemTheme = window.matchMedia('(prefers-color-scheme: dark)')
+
+    function followSystemTheme(event: MediaQueryListEvent) {
+      if (!document.documentElement.dataset.theme) setIsDarkTheme(event.matches)
+    }
+
+    systemTheme.addEventListener('change', followSystemTheme)
+    return () => systemTheme.removeEventListener('change', followSystemTheme)
+  }, [])
 
   useEffect(() => {
     const desktop = window.matchMedia('(min-width: 801px)')
@@ -38,6 +53,18 @@ export default function AppLayout({ children }: { children: ReactNode }) {
 
   function closeMenu() {
     dialogRef.current?.close()
+  }
+
+  function toggleTheme() {
+    const theme = isDarkTheme ? 'light' : 'dark'
+    document.documentElement.dataset.theme = theme
+    setIsDarkTheme(theme === 'dark')
+
+    try {
+      localStorage.setItem('consta:theme', theme)
+    } catch {
+      // A troca continua funcionando nesta sessão se o armazenamento estiver indisponível.
+    }
   }
 
   function handleMenuKeyDown(event: KeyboardEvent<HTMLDialogElement>) {
@@ -77,9 +104,9 @@ export default function AppLayout({ children }: { children: ReactNode }) {
 
       <aside
         ref={desktopSidebarRef}
-        className="fixed inset-y-0 left-0 hidden w-56 overflow-y-auto border-r border-border bg-surface px-4 pt-7 pb-5 min-[801px]:block"
+        className="fixed inset-y-0 left-0 hidden w-56 flex-col overflow-y-auto border-r border-border bg-surface px-4 pt-7 pb-5 min-[801px]:flex"
       >
-        <Sidebar />
+        <Sidebar isDarkTheme={isDarkTheme} onToggleTheme={toggleTheme} />
       </aside>
 
       <div className="min-[801px]:ml-56">
@@ -110,15 +137,15 @@ export default function AppLayout({ children }: { children: ReactNode }) {
         aria-labelledby={menuTitleId}
         onClose={handleMenuClosed}
         onKeyDown={handleMenuKeyDown}
-        className="fixed inset-y-0 left-0 m-0 h-dvh max-h-none w-56 max-w-[calc(100vw-2rem)] overflow-y-auto border-0 border-r border-border bg-surface px-4 pt-7 pb-5 text-foreground opacity-0 transition-opacity duration-(--duration-normal) ease-out open:opacity-100 backdrop:bg-background/80 motion-reduce:transition-none starting:open:opacity-0"
+        className="fixed inset-y-0 left-0 m-0 h-dvh max-h-none w-56 max-w-[calc(100vw-2rem)] overflow-y-auto border-0 border-r border-border bg-surface px-4 pt-7 pb-5 text-foreground opacity-0 transition-opacity duration-(--duration-normal) ease-out open:flex open:flex-col open:opacity-100 backdrop:bg-background/80 motion-reduce:transition-none starting:open:opacity-0"
       >
-        <div className="mb-6 flex items-center justify-between gap-2">
+        <div className="mb-6 flex shrink-0 items-center justify-between gap-2">
           <h2 id={menuTitleId} className="text-base">Menu</h2>
           <Button ref={closeButtonRef} variant="ghost" onClick={closeMenu} aria-label="Fechar menu">
             Fechar
           </Button>
         </div>
-        <Sidebar onNavigate={closeMenu} />
+        <Sidebar isDarkTheme={isDarkTheme} onToggleTheme={toggleTheme} onNavigate={closeMenu} />
       </dialog>
     </div>
   )
