@@ -16,6 +16,19 @@ export default function AppLayout({ children }: { children: ReactNode }) {
   const desktopSidebarRef = useRef<HTMLElement>(null)
 
   useEffect(() => {
+    let frame = window.requestAnimationFrame(() => {
+      frame = window.requestAnimationFrame(() => {
+        document.documentElement.dataset.themeTransitions = 'true'
+      })
+    })
+
+    return () => {
+      window.cancelAnimationFrame(frame)
+      delete document.documentElement.dataset.themeTransitions
+    }
+  }, [])
+
+  useEffect(() => {
     const systemTheme = window.matchMedia('(prefers-color-scheme: dark)')
 
     function followSystemTheme(event: MediaQueryListEvent) {
@@ -63,7 +76,6 @@ export default function AppLayout({ children }: { children: ReactNode }) {
     try {
       localStorage.setItem('consta:theme', theme)
     } catch {
-      // A troca continua funcionando nesta sessão se o armazenamento estiver indisponível.
     }
   }
 
@@ -125,7 +137,7 @@ export default function AppLayout({ children }: { children: ReactNode }) {
         <main
           id="main-content"
           tabIndex={-1}
-          className="mx-auto max-w-[70rem] px-5 pt-7 pb-18 max-[391px]:px-4 min-[801px]:px-12 min-[801px]:pt-12"
+          className="mx-auto max-w-280 px-5 pt-7 pb-18 max-[391px]:px-4 min-[801px]:px-12 min-[801px]:pt-12"
         >
           {children}
         </main>
@@ -137,7 +149,7 @@ export default function AppLayout({ children }: { children: ReactNode }) {
         aria-labelledby={menuTitleId}
         onClose={handleMenuClosed}
         onKeyDown={handleMenuKeyDown}
-        className="fixed inset-y-0 left-0 m-0 h-dvh max-h-none w-56 max-w-[calc(100vw-2rem)] overflow-y-auto border-0 border-r border-border bg-surface px-4 pt-7 pb-5 text-foreground opacity-0 transition-opacity duration-(--duration-normal) ease-out open:flex open:flex-col open:opacity-100 backdrop:bg-background/80 motion-reduce:transition-none starting:open:opacity-0"
+        className="fixed inset-y-0 left-0 m-0 h-dvh max-h-none w-56 max-w-[calc(100vw-2rem)] overflow-y-auto border-0 border-r border-border bg-surface px-4 pt-7 pb-5 text-foreground opacity-0 transition-[background-color,border-color,color,opacity] duration-(--duration-slow) ease-out open:flex open:flex-col open:opacity-100 backdrop:bg-background/80 motion-reduce:transition-none starting:open:opacity-0"
       >
         <div className="mb-6 flex shrink-0 items-center justify-between gap-2">
           <h2 id={menuTitleId} className="text-base">Menu</h2>

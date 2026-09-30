@@ -19,17 +19,17 @@ defineCustomElement()
 type MenuItem = {
   label: string
   icon: string
-  to?: string
+  to: string
 }
 
 const menuItems: MenuItem[] = [
   { label: 'Visão geral', icon: gridOutline, to: '/' },
-  { label: 'Treinos', icon: barbellOutline },
-  { label: 'Históricos', icon: timeOutline },
-  { label: 'Evolução', icon: trendingUpOutline },
-  { label: 'Alimentação', icon: restaurantOutline },
-  { label: 'Metas', icon: flagOutline },
-  { label: 'Configurações', icon: settingsOutline },
+  { label: 'Treinos', icon: barbellOutline, to: '/treinos' },
+  { label: 'Históricos', icon: timeOutline, to: '/historicos' },
+  { label: 'Evolução', icon: trendingUpOutline, to: '/evolucao' },
+  { label: 'Alimentação', icon: restaurantOutline, to: '/alimentacao' },
+  { label: 'Metas', icon: flagOutline, to: '/metas' },
+  { label: 'Configurações', icon: settingsOutline, to: '/configuracoes' },
 ]
 
 const menuItemClassName = 'flex min-h-11 items-center gap-[0.8125rem] rounded-lg px-3 py-2 text-left text-sm font-medium text-muted'
@@ -53,47 +53,50 @@ export default function Sidebar({ isDarkTheme, onToggleTheme, onNavigate }: Side
         <span className="text-[1.3125rem] tracking-[-0.04375rem]">consta</span>
       </p>
       <nav aria-label="Principal" className="flex shrink-0 flex-col gap-1.5">
-        {menuItems.map(({ label, icon, to }) => {
-          const content = (
-            <>
-              {createElement('ion-icon', {
-                icon,
-                class: 'size-5 shrink-0',
-                'aria-hidden': 'true',
-              })}
-              <span>{label}</span>
-            </>
-          )
-
-          return to ? (
-            <NavLink
-              key={label}
-              to={to}
-              end
-              onClick={onNavigate}
-              className={`${menuItemClassName} transition-[background-color,color,opacity] duration-(--duration-fast) ease-standard hover:bg-surface-muted hover:text-foreground active:opacity-80 aria-[current=page]:bg-surface-muted aria-[current=page]:font-semibold aria-[current=page]:text-foreground motion-reduce:transition-none`}
-            >
-              {content}
-            </NavLink>
-          ) : (
-            <button key={label} type="button" disabled className={`${menuItemClassName} cursor-default`}>
-              {content}
-            </button>
-          )
-        })}
+        {menuItems.map(({ label, icon, to }) => (
+          <NavLink
+            key={label}
+            to={to}
+            end
+            onClick={onNavigate}
+            className={`${menuItemClassName} transition-[background-color,color,opacity] duration-(--duration-slow) ease-standard hover:bg-surface-muted hover:text-foreground active:opacity-80 aria-[current=page]:bg-surface-muted aria-[current=page]:font-semibold aria-[current=page]:text-foreground motion-reduce:transition-none`}
+          >
+            {createElement('ion-icon', {
+              icon,
+              class: 'size-5 shrink-0',
+              'aria-hidden': 'true',
+            })}
+            <span>{label}</span>
+          </NavLink>
+        ))}
       </nav>
       <div className="mt-auto shrink-0 pt-6">
         <div className="border-t border-border pt-3">
           <button
             type="button"
             onClick={onToggleTheme}
-            className={`${menuItemClassName} w-full cursor-pointer transition-[background-color,color,opacity] duration-(--duration-fast) ease-standard hover:bg-surface-muted hover:text-foreground active:opacity-80 motion-reduce:transition-none`}
+            className={`${menuItemClassName} w-full cursor-pointer transition-[background-color,color,opacity] duration-(--duration-slow) ease-standard hover:bg-surface-muted hover:text-foreground active:opacity-80 motion-reduce:transition-none`}
           >
-            {createElement('ion-icon', {
-              icon: isDarkTheme ? sunnyOutline : moonOutline,
-              class: 'size-5 shrink-0',
-              'aria-hidden': 'true',
-            })}
+            <span aria-hidden="true" className="pointer-events-none relative size-5 shrink-0">
+              <span
+                className={`absolute inset-0 transition-[opacity,rotate] duration-(--duration-slow) ease-standard motion-reduce:transition-none ${isDarkTheme ? 'rotate-0 opacity-100' : '-rotate-90 opacity-0'}`}
+              >
+                {createElement('ion-icon', {
+                  icon: sunnyOutline,
+                  class: 'size-5',
+                  'aria-hidden': 'true',
+                })}
+              </span>
+              <span
+                className={`absolute inset-0 transition-[opacity,rotate] duration-(--duration-slow) ease-standard motion-reduce:transition-none ${isDarkTheme ? 'rotate-90 opacity-0' : 'rotate-0 opacity-100'}`}
+              >
+                {createElement('ion-icon', {
+                  icon: moonOutline,
+                  class: 'size-5',
+                  'aria-hidden': 'true',
+                })}
+              </span>
+            </span>
             <span>{isDarkTheme ? 'Tema claro' : 'Tema escuro'}</span>
           </button>
           <div className="mt-2 flex items-center gap-1.5 rounded-lg px-2 py-2.5">

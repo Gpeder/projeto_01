@@ -127,4 +127,12 @@
     outline: 2px solid var(--focus);
     outline-offset: 2px;
   }
+
+  @media (prefers-reduced-motion: no-preference) {
+    :where(html[data-theme-transitions]) :where(body, body *, body *::before, body *::after, dialog::backdrop) {
+      transition-property: background-color, border-color, color, fill, stroke, outline-color;
+      transition-duration: var(--duration-slow);
+      transition-timing-function: var(--ease-standard);
+    }
+  }
 }
