@@ -2,16 +2,12 @@ import { createElement } from 'react'
 import { NavLink } from 'react-router'
 import { defineCustomElement } from 'ionicons/components/ion-icon.js'
 import {
-  barbellOutline,
   ellipsisHorizontal,
-  flagOutline,
   gridOutline,
   moonOutline,
-  restaurantOutline,
+  peopleOutline,
   settingsOutline,
   sunnyOutline,
-  timeOutline,
-  trendingUpOutline,
 } from 'ionicons/icons'
 
 defineCustomElement()
@@ -24,11 +20,7 @@ type MenuItem = {
 
 const menuItems: MenuItem[] = [
   { label: 'Visão geral', icon: gridOutline, to: '/' },
-  { label: 'Treinos', icon: barbellOutline, to: '/treinos' },
-  { label: 'Históricos', icon: timeOutline, to: '/historicos' },
-  { label: 'Evolução', icon: trendingUpOutline, to: '/evolucao' },
-  { label: 'Alimentação', icon: restaurantOutline, to: '/alimentacao' },
-  { label: 'Metas', icon: flagOutline, to: '/metas' },
+  { label: 'Alunos', icon: peopleOutline, to: '/alunos' },
   { label: 'Configurações', icon: settingsOutline, to: '/configuracoes' },
 ]
 
@@ -43,16 +35,19 @@ type SidebarProps = {
 export default function Sidebar({ isDarkTheme, onToggleTheme, onNavigate }: SidebarProps) {
   return (
     <>
-      <p className="flex shrink-0 items-center gap-2.5 px-2.5 pb-7.5 font-heading font-semibold">
+      <p className="grid shrink-0 grid-cols-[1.875rem_auto] items-center gap-x-2.5 px-2.5 pb-8.5 font-heading font-semibold">
         <span
           aria-hidden="true"
-          className="grid size-7.25 shrink-0 place-items-center rounded-lg bg-primary text-on-primary"
+          className="row-span-2 grid size-7.5 place-items-center rounded-lg bg-primary text-[0.9375rem] text-on-primary"
         >
           C
         </span>
         <span className="text-[1.3125rem] tracking-[-0.04375rem]">consta</span>
+        <span className="col-start-2 -mt-0.75 font-sans text-[0.5rem] font-normal tracking-[0.0875rem] text-muted">
+          PROFISSIONAL
+        </span>
       </p>
-      <nav aria-label="Principal" className="flex shrink-0 flex-col gap-1.5">
+      <nav aria-label="Principal" className="flex shrink-0 flex-col gap-1">
         {menuItems.map(({ label, icon, to }) => (
           <NavLink
             key={label}
@@ -104,10 +99,10 @@ export default function Sidebar({ isDarkTheme, onToggleTheme, onNavigate }: Side
               aria-hidden="true"
               className="grid size-8.5 shrink-0 place-items-center rounded-full bg-primary font-semibold text-on-primary"
             >
-              M
+              P
             </span>
             <div className="flex min-w-0 flex-1 flex-col gap-0.5">
-              <span className="truncate text-sm font-semibold">Marina</span>
+              <span className="truncate text-sm font-semibold">Profissional</span>
               <span className="truncate text-[0.6875rem] text-muted">Modo demonstração</span>
             </div>
             {createElement('ion-icon', {

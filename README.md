@@ -2,6 +2,10 @@
 
 Base de monorepo com pnpm workspaces. O frontend usa React + TypeScript strict +
 Vite e Tailwind CSS 4.3.3, com navegação inicial e uma demonstração da base visual.
+O produto é uma plataforma web para o profissional acompanhar alunos. Nesta
+etapa, existem a base visual, a navegação, uma listagem estática de alunos e
+páginas provisórias. As funcionalidades de acompanhamento e o aplicativo do
+aluno ficam para o futuro.
 
 ## Executar
 
@@ -51,20 +55,25 @@ Os tokens ficam em `apps/web/src/index.css` e geram classes semânticas como
 | `on-primary` | `#ffffff` | `#181a1c` |
 | `focus` | `#375f85` | `#a7c7e7` |
 | `success` | `#286344` | `#8bc4a3` |
-| `warning` | `#855400` | `#e5bd75` |
+| `warning` | `#805a12` | `#dfbf79` |
 | `error` | `#a63232` | `#eda1a1` |
 | `on-error` | `var(--on-primary)` | `var(--on-primary)` |
 
-As cores partem da referência, incluindo o erro antes definido diretamente no
-CSS. Atenção (`warning`) acrescenta uma cor que não havia nos estilos exportados.
-`control-strong` fornece uma borda com maior contraste para o Button secundário;
-`on-error` reutiliza a cor de texto de ação para o Button destrutivo.
+As cores partem da referência, incluindo atenção (`warning`) nos dois temas.
+`control-strong` fornece uma borda com maior contraste para o Button secundário.
+O Button destrutivo usa `error` no texto e na borda, com fundo transparente;
+o token existente `on-error` permanece disponível, mas não é usado nessa variante.
 As bordas suaves originais foram preservadas; `border` serve para divisórias e
 `control` não deve ser o único indicador de um campo, pois fica abaixo de 3:1
 contra as superfícies. O botão da amostra usa a cor de ação e foco visível.
 
-O tema acompanha o sistema por padrão. Para conferir a prioridade do atributo
-no console do navegador:
+O tema acompanha o sistema enquanto não houver uma escolha salva. O controle
+**Tema claro / Tema escuro** da sidebar alterna o tema e salva a preferência
+em `localStorage` (`consta:theme`). O HTML aplica a preferência antes da montagem
+do React. Se o armazenamento estiver indisponível, a troca continua funcionando
+na sessão atual.
+
+Para conferir os tokens na demonstração em `/dev/components`, use o console:
 
 ```js
 document.documentElement.dataset.theme = 'light'
@@ -73,8 +82,8 @@ document.documentElement.removeAttribute('data-theme') // Volta ao sistema
 ```
 
 O atributo controla também `color-scheme` e a variante `dark:` do Tailwind.
-Não há seletor visual nem persistência. As amostras ficam em `/dev/components`,
-disponível somente com o servidor de desenvolvimento.
+As amostras ficam em `/dev/components`, disponível somente com o servidor de
+desenvolvimento.
 
 ## Movimento e Button
 
@@ -111,6 +120,9 @@ O componente aceita atributos nativos de `button`, incluindo `ref`, `className`,
 eventos e atributos ARIA. Os padrões são `primary`, `md` e `type="button"`.
 Variantes: `primary`, `secondary`, `ghost` e `destructive`. Tamanhos: `sm` (38px),
 `md` (44px) e `lg` (48px), com área mínima de 44 × 44px quando há ponteiro touch.
+O tamanho `md` usa texto de 13px e espaçamento horizontal de 17px. A variante
+destrutiva mantém texto e borda de erro, com superfície secundária no hover e
+durante o clique, preservando o contraste do texto.
 
 `loading` bloqueia o botão nativamente, assim como `disabled`, aplica `aria-busy`
 e anuncia o texto de carregamento sem spinner. O nome acessível original é
@@ -125,15 +137,37 @@ nem gerencia o estado do formulário.
 ## Navegação
 
 React Router no modo declarativo gerencia as rotas. `/` abre **Visão geral**,
-que contém somente o título. É o único destino da sidebar e seu link recebe
-`aria-current="page"`. A demonstração em `/dev/components` fica fora do menu e
-não integra o JavaScript da compilação de produção.
+que contém somente o título. A sidebar oferece **Visão geral**, **Alunos**
+(`/alunos`) e **Configurações** (`/configuracoes`), com `aria-current="page"`
+no link ativo.
+Configurações contém somente título e texto provisório.
+
+A página **Alunos** exibe o cabeçalho **CARTEIRA**, a contagem de um aluno e uma
+listagem com dados fixos da referência: Gustavo, identificado como demonstração,
+objetivo de ganhar força e melhorar a composição corporal e último treino
+**Treino B — Costas e bíceps**, em **26 jun 2024**. A tabela tem cabeçalhos
+semânticos e apresenta as informações empilhadas no mobile, nos dois temas.
+Não há cadastro, busca, filtros, edição ou integração com API. A ação **Ver aluno**
+e sua coluna foram omitidas enquanto não existir uma página de detalhes.
+
+As rotas `/treinos`, `/historicos`, `/evolucao`, `/alimentacao` e `/metas`
+continuam acessíveis diretamente, com seus títulos e textos provisórios
+preservados, mas saíram da sidebar conforme a referência atualizada. Não há
+conteúdo funcional nessas páginas.
+
+A marca identifica a plataforma como **PROFISSIONAL** e o perfil informativo
+mostra **Profissional**, inicial **P** e **Modo demonstração**, sem autenticação
+ou papéis implementados. A demonstração em `/dev/components` fica fora do menu
+e não integra o JavaScript da compilação de produção.
 
 `src/components/layout` contém `AppLayout` e `Sidebar`; `src/pages` contém as
 páginas. O layout usa classes Tailwind e os tokens existentes. A sidebar tem
-224px no desktop; abaixo de 801px, o botão **Abrir menu** abre um `dialog` modal.
+232px no desktop; abaixo de 801px, o botão **Abrir menu** abre o `dialog` modal
+existente de 224px, sem barra de navegação inferior. O conteúdo tem largura
+máxima de 1160px e espaçamento lateral de 32px entre 801px e 950px, e de 48px
+a partir de 951px.
 O diálogo bloqueia interação com o conteúdo atrás e a rolagem da página.
-**Fechar**, Escape ou a seleção de **Visão geral** fecham o menu e devolvem o foco
+**Fechar**, Escape ou a seleção de um link fecham o menu e devolvem o foco
 ao acionador. Ao mudar para desktop com o menu aberto, ele fecha e o link ativo
 recebe foco. As transições respeitam `prefers-reduced-motion`.
 

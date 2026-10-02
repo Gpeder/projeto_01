@@ -7,6 +7,7 @@ import NutritionPage from './pages/NutritionPage'
 import OverviewPage from './pages/OverviewPage'
 import ProgressPage from './pages/ProgressPage'
 import SettingsPage from './pages/SettingsPage'
+import StudentsPage from './pages/StudentsPage'
 import WorkoutsPage from './pages/WorkoutsPage'
 
 const ComponentDemo = import.meta.env.DEV
@@ -18,6 +19,7 @@ export default function App() {
     <Routes>
       <Route path="/" element={<AppLayout><Outlet /></AppLayout>}>
         <Route index element={<OverviewPage />} />
+        <Route path="alunos" element={<StudentsPage />} />
         <Route path="treinos" element={<WorkoutsPage />} />
         <Route path="historicos" element={<HistoryPage />} />
         <Route path="evolucao" element={<ProgressPage />} />

@@ -116,12 +116,12 @@ export default function AppLayout({ children }: { children: ReactNode }) {
 
       <aside
         ref={desktopSidebarRef}
-        className="fixed inset-y-0 left-0 hidden w-56 flex-col overflow-y-auto border-r border-border bg-surface px-4 pt-7 pb-5 min-[801px]:flex"
+        className="fixed inset-y-0 left-0 hidden w-58 flex-col overflow-y-auto border-r border-border bg-surface px-4 pt-7 pb-5 min-[801px]:flex"
       >
         <Sidebar isDarkTheme={isDarkTheme} onToggleTheme={toggleTheme} />
       </aside>
 
-      <div className="min-[801px]:ml-56">
+      <div className="min-[801px]:ml-58">
         <header className="border-b border-border bg-surface px-5 py-3 min-[801px]:hidden">
           <Button
             ref={triggerRef}
@@ -137,7 +137,7 @@ export default function AppLayout({ children }: { children: ReactNode }) {
         <main
           id="main-content"
           tabIndex={-1}
-          className="mx-auto max-w-280 px-5 pt-7 pb-18 max-[391px]:px-4 min-[801px]:px-12 min-[801px]:pt-12"
+          className="mx-auto max-w-290 px-5 pt-7 pb-18 max-[391px]:px-4 min-[801px]:px-8 min-[801px]:pt-12 min-[951px]:px-12"
         >
           {children}
         </main>
