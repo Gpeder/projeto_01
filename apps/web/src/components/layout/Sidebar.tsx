@@ -52,7 +52,7 @@ export default function Sidebar({ isDarkTheme, onToggleTheme, onNavigate }: Side
           <NavLink
             key={label}
             to={to}
-            end
+            end={to !== '/alunos'}
             onClick={onNavigate}
             className={`${menuItemClassName} transition-[background-color,color,opacity] duration-(--duration-slow) ease-standard hover:bg-surface-muted hover:text-foreground active:opacity-80 aria-[current=page]:bg-surface-muted aria-[current=page]:font-semibold aria-[current=page]:text-foreground motion-reduce:transition-none`}
           >

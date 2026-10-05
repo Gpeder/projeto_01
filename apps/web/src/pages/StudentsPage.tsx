@@ -1,3 +1,5 @@
+import { Link } from 'react-router'
+
 export default function StudentsPage() {
   return (
     <>
@@ -18,17 +20,18 @@ export default function StudentsPage() {
         <thead role="rowgroup" className="sr-only min-[801px]:not-sr-only min-[801px]:block">
           <tr
             role="row"
-            className="grid grid-cols-[minmax(0,1.1fr)_minmax(0,1.3fr)_minmax(0,1fr)] items-center gap-6 py-3 text-left text-[0.625rem] tracking-[0.03125rem] text-muted uppercase"
+            className="grid grid-cols-[minmax(0,1.1fr)_minmax(0,1.3fr)_minmax(0,1fr)_auto] items-center gap-6 py-3 text-left text-[0.625rem] tracking-[0.03125rem] text-muted uppercase"
           >
             <th scope="col" role="columnheader" className="font-semibold">Aluno</th>
             <th scope="col" role="columnheader" className="font-semibold">Objetivo</th>
             <th scope="col" role="columnheader" className="font-semibold">Último treino registrado</th>
+            <th scope="col" role="columnheader" className="font-semibold">Ação</th>
           </tr>
         </thead>
         <tbody role="rowgroup" className="block">
           <tr
             role="row"
-            className="grid gap-4.25 border-b border-border px-1 py-5 text-[0.8125rem] leading-[1.4] min-[801px]:min-h-23 min-[801px]:grid-cols-[minmax(0,1.1fr)_minmax(0,1.3fr)_minmax(0,1fr)] min-[801px]:items-center min-[801px]:gap-6 min-[801px]:border-t min-[801px]:px-0 min-[801px]:py-3.5"
+            className="grid gap-4.25 border-b border-border px-1 py-5 text-[0.8125rem] leading-[1.4] min-[801px]:min-h-23 min-[801px]:grid-cols-[minmax(0,1.1fr)_minmax(0,1.3fr)_minmax(0,1fr)_auto] min-[801px]:items-center min-[801px]:gap-6 min-[801px]:border-t min-[801px]:px-0 min-[801px]:py-3.5"
           >
             <td role="cell" className="flex min-w-0 items-center gap-3.5">
               <span
@@ -60,6 +63,11 @@ export default function StudentsPage() {
               </span>
               <time dateTime="2024-06-26">26 jun 2024</time>
               <span className="text-[0.6875rem] text-muted">Treino B — Costas e bíceps</span>
+            </td>
+            <td role="cell">
+              <Link to="/alunos/gustavo" className="inline-flex min-h-11 w-full items-center justify-center rounded-lg border border-control-strong px-4 py-2.5 font-semibold hover:bg-surface-muted min-[801px]:w-auto">
+                Ver aluno
+              </Link>
             </td>
           </tr>
         </tbody>

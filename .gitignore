@@ -1,4 +1,3 @@
-# Dependências e arquivos gerados
 node_modules/
 .pnpm-store/
 dist/
@@ -6,7 +5,6 @@ dist-ssr/
 *.tsbuildinfo
 *.log
 
-# Configurações locais
 .env
 .env.*
 !.env.example
@@ -14,24 +12,4 @@ dist-ssr/
 .DS_Store
 .idea/
 
-# Instruções, skills e configurações locais de assistentes
-AGENTS.md
-AGENTS.override.md
-SKILL.md
-.agents/
-.codex/
-.skills/
-skills/
-.claude/
-CLAUDE.md
-CLAUDE.local.md
-.cursor/
-.cursorrules
-.github/copilot-instructions.md
-.github/instructions/
-.github/prompts/
-.github/agents/
-*[Vv][Ii][Bb][Ee][Cc][Oo][Dd][Ee][Rr]*
-
-# Referência externa: preservar e não versionar
 /Pasta sem título/

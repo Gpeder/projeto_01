@@ -9,6 +9,11 @@ import ProgressPage from './pages/ProgressPage'
 import SettingsPage from './pages/SettingsPage'
 import StudentsPage from './pages/StudentsPage'
 import WorkoutsPage from './pages/WorkoutsPage'
+import StudentPage from './pages/student/StudentPage'
+import StudentSummary from './pages/student/StudentSummary'
+import StudentWorkouts from './pages/student/StudentWorkouts'
+import StudentNutrition from './pages/student/StudentNutrition'
+import StudentEvolution from './pages/student/StudentEvolution'
 
 const ComponentDemo = import.meta.env.DEV
   ? lazy(() => import('./pages/ComponentDemo'))
@@ -20,6 +25,12 @@ export default function App() {
       <Route path="/" element={<AppLayout><Outlet /></AppLayout>}>
         <Route index element={<OverviewPage />} />
         <Route path="alunos" element={<StudentsPage />} />
+        <Route path="alunos/:studentId" element={<StudentPage />}>
+          <Route index element={<StudentSummary />} />
+          <Route path="treinos" element={<StudentWorkouts />} />
+          <Route path="alimentacao" element={<StudentNutrition />} />
+          <Route path="evolucao" element={<StudentEvolution />} />
+        </Route>
         <Route path="treinos" element={<WorkoutsPage />} />
         <Route path="historicos" element={<HistoryPage />} />
         <Route path="evolucao" element={<ProgressPage />} />

@@ -3,9 +3,10 @@
 Base de monorepo com pnpm workspaces. O frontend usa React + TypeScript strict +
 Vite e Tailwind CSS 4.3.3, com navegação inicial e uma demonstração da base visual.
 O produto é uma plataforma web para o profissional acompanhar alunos. Nesta
-etapa, existem a base visual, a navegação, uma listagem estática de alunos e
-páginas provisórias. As funcionalidades de acompanhamento e o aplicativo do
-aluno ficam para o futuro.
+etapa, existem a base visual, a navegação, uma listagem estática de alunos,
+uma visão geral demonstrativa de presença e atividade e páginas provisórias.
+O registro de presenças, a integração com relógios e o aplicativo do aluno
+ficam para o futuro.
 
 ## Executar
 
@@ -20,9 +21,9 @@ pnpm dev
 Abra o endereço exibido pelo Vite no terminal, normalmente http://localhost:5173.
 
 ```sh
-pnpm build      # Verifica tipos e gera apps/web/dist
-pnpm lint      # Executa o Oxlint do template oficial
-pnpm typecheck # Verifica os projetos TypeScript do frontend e do Vite
+pnpm build
+pnpm lint
+pnpm typecheck
 ```
 
 ## Base visual
@@ -78,7 +79,7 @@ Para conferir os tokens na demonstração em `/dev/components`, use o console:
 ```js
 document.documentElement.dataset.theme = 'light'
 document.documentElement.dataset.theme = 'dark'
-document.documentElement.removeAttribute('data-theme') // Volta ao sistema
+document.documentElement.removeAttribute('data-theme')
 ```
 
 O atributo controla também `color-scheme` e a variante `dark:` do Tailwind.
@@ -136,11 +137,26 @@ nem gerencia o estado do formulário.
 
 ## Navegação
 
-React Router no modo declarativo gerencia as rotas. `/` abre **Visão geral**,
-que contém somente o título. A sidebar oferece **Visão geral**, **Alunos**
+React Router no modo declarativo gerencia as rotas. `/` abre **Visão geral**.
+A sidebar oferece **Visão geral**, **Alunos**
 (`/alunos`) e **Configurações** (`/configuracoes`), com `aria-current="page"`
 no link ativo.
 Configurações contém somente título e texto provisório.
+
+A **Visão geral** segue a composição da referência: cabeçalho, destaque do aluno
+Gustavo e duas áreas de acompanhamento. A semana de **24 a 30 de junho de 2024**
+é identificada como exemplo, coerente com a listagem de alunos. O calendário
+mostra duas presenças informadas por check-in no app, nos dias 24 e 26, para uma
+meta semanal de três. Dias sem registro não são tratados como faltas.
+
+A área **Atividade pelo relógio** mostra o último treino demonstrativo, com
+54 minutos, frequência cardíaca média de 128 bpm e máxima de 156 bpm. Esses
+valores são fictícios: não há conexão com dispositivos, sincronização ou
+avaliação automática de intensidade. Dados do relógio não confirmam presença
+na academia e não são somados aos check-ins. A tela é de consulta, adapta-se
+ao mobile e aos dois temas e oferece **Ver alunos** para a listagem existente.
+Datas e números usam `Intl` em português brasileiro; as datas do exemplo são
+estáveis entre fusos horários. A página não registra presenças nem persiste dados.
 
 A página **Alunos** exibe o cabeçalho **CARTEIRA**, a contagem de um aluno e uma
 listagem com dados fixos da referência: Gustavo, identificado como demonstração,
