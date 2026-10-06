@@ -4,8 +4,11 @@
   "packageManager": "pnpm@11.22.0",
   "scripts": {
     "dev": "pnpm --filter ./apps/web dev",
-    "build": "pnpm --filter ./apps/web build",
-    "lint": "pnpm --filter ./apps/web lint",
-    "typecheck": "pnpm --filter ./apps/web typecheck"
+    "dev:api": "pnpm --filter ./apps/api dev",
+    "start:api": "pnpm --filter ./apps/api start",
+    "test:api": "pnpm --filter ./apps/api test",
+    "build": "pnpm -r build",
+    "lint": "pnpm -r lint",
+    "typecheck": "pnpm -r typecheck"
   }
 }

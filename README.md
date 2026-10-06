@@ -26,6 +26,27 @@ pnpm lint
 pnpm typecheck
 ```
 
+## Backend de alimentos
+
+O backend em `apps/api` usa Node.js, TypeScript e Fastify para consultar a USDA
+FoodData Central. A integração é independente do frontend.
+
+Copie `apps/api/.env.example` para `apps/api/.env` e preencha `USDA_API_KEY`
+manualmente. O arquivo `.env` está ignorado pelo Git. Na raiz, execute:
+
+```sh
+pnpm dev:api
+```
+
+O servidor atende em `http://127.0.0.1:3001`. Os endpoints são
+`GET /foods?query=rice&page=1` e `GET /foods/:id`.
+A busca usa os termos originais da USDA, predominantemente em inglês.
+
+`pnpm build`, `pnpm lint` e `pnpm typecheck` verificam os dois aplicativos.
+`pnpm test:api` executa os testes locais; `pnpm --filter api test:live` verifica
+busca e detalhes na USDA com a chave configurada. Instruções, contrato e limites
+estão em [apps/api/README.md](apps/api/README.md).
+
 ## Base visual
 
 Tailwind usa o plugin oficial `@tailwindcss/vite` e configuração em CSS, conforme a
@@ -190,12 +211,12 @@ recebe foco. As transições respeitam `prefers-reduced-motion`.
 ## Organização
 
 - `apps/web`: frontend React + TypeScript + Vite.
+- `apps/api`: backend Node.js + TypeScript + Fastify, com integração USDA.
 - `packages`: reservado para pacotes futuros.
 - `docs`: reservado para documentação.
 - `pnpm-lock.yaml`: único lockfile, mantido na raiz.
 
 Planejados para etapas futuras, ainda não criados:
 
-- `apps/api`: Node.js + Fastify.
 - `packages/database`: Prisma + PostgreSQL.
 - `apps/mobile`: Flutter.

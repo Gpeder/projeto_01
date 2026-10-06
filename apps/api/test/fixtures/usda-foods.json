@@ -1,0 +1,441 @@
+{
+  "source": "USDA FoodData Central",
+  "capturedOn": "2026-10-05",
+  "access": "public demonstration access; no private key used",
+  "samples": {
+    "foundation": {
+      "search": {
+        "fdcId": 1104812,
+        "dataType": "Foundation",
+        "description": "Flour, rice, brown",
+        "foodNutrients": [
+          {
+            "nutrientId": 1062,
+            "nutrientName": "Energy",
+            "nutrientNumber": "268",
+            "unitName": "kJ",
+            "value": 1580.0
+          },
+          {
+            "nutrientId": 1003,
+            "nutrientName": "Protein",
+            "nutrientNumber": "203",
+            "unitName": "G",
+            "value": 7.19
+          },
+          {
+            "nutrientId": 1004,
+            "nutrientName": "Total lipid (fat)",
+            "nutrientNumber": "204",
+            "unitName": "G",
+            "value": 3.85
+          },
+          {
+            "nutrientId": 1005,
+            "nutrientName": "Carbohydrate, by difference",
+            "nutrientNumber": "205",
+            "unitName": "G",
+            "value": 75.5
+          },
+          {
+            "nutrientId": 1008,
+            "nutrientName": "Energy",
+            "nutrientNumber": "208",
+            "unitName": "KCAL",
+            "value": 365
+          }
+        ]
+      },
+      "detail": {
+        "fdcId": 1104812,
+        "dataType": "Foundation",
+        "description": "Flour, rice, brown",
+        "foodNutrients": [
+          {
+            "id": 13336282,
+            "nutrient": {
+              "id": 1008,
+              "number": "208",
+              "name": "Energy",
+              "rank": 300,
+              "unitName": "kcal"
+            },
+            "amount": 365.25
+          },
+          {
+            "id": 13336269,
+            "nutrient": {
+              "id": 1062,
+              "number": "268",
+              "name": "Energy",
+              "rank": 400,
+              "unitName": "kJ"
+            },
+            "amount": 1582.206
+          },
+          {
+            "id": 13336276,
+            "nutrient": {
+              "id": 1003,
+              "number": "203",
+              "name": "Protein",
+              "rank": 600,
+              "unitName": "g"
+            },
+            "amount": 7.19
+          },
+          {
+            "id": 13336280,
+            "nutrient": {
+              "id": 1004,
+              "number": "204",
+              "name": "Total lipid (fat)",
+              "rank": 800,
+              "unitName": "g"
+            },
+            "amount": 3.85
+          },
+          {
+            "id": 13336281,
+            "nutrient": {
+              "id": 1005,
+              "number": "205",
+              "name": "Carbohydrate, by difference",
+              "rank": 1110,
+              "unitName": "g"
+            },
+            "amount": 75.5
+          }
+        ]
+      }
+    },
+    "sr": {
+      "search": {
+        "fdcId": 168914,
+        "dataType": "SR Legacy",
+        "description": "Rice noodles, cooked",
+        "foodNutrients": [
+          {
+            "nutrientId": 1004,
+            "nutrientName": "Total lipid (fat)",
+            "nutrientNumber": "204",
+            "unitName": "G",
+            "value": 0.2
+          },
+          {
+            "nutrientId": 1005,
+            "nutrientName": "Carbohydrate, by difference",
+            "nutrientNumber": "205",
+            "unitName": "G",
+            "value": 24.0
+          },
+          {
+            "nutrientId": 1008,
+            "nutrientName": "Energy",
+            "nutrientNumber": "208",
+            "unitName": "KCAL",
+            "value": 108
+          },
+          {
+            "nutrientId": 1003,
+            "nutrientName": "Protein",
+            "nutrientNumber": "203",
+            "unitName": "G",
+            "value": 1.79
+          },
+          {
+            "nutrientId": 1062,
+            "nutrientName": "Energy",
+            "nutrientNumber": "268",
+            "unitName": "kJ",
+            "value": 454
+          }
+        ]
+      },
+      "detail": {
+        "fdcId": 168914,
+        "dataType": "SR Legacy",
+        "description": "Rice noodles, cooked",
+        "foodNutrients": [
+          {
+            "id": 1398664,
+            "nutrient": {
+              "id": 1008,
+              "number": "208",
+              "name": "Energy",
+              "rank": 300,
+              "unitName": "kcal"
+            },
+            "amount": 108.0
+          },
+          {
+            "id": 1398677,
+            "nutrient": {
+              "id": 1062,
+              "number": "268",
+              "name": "Energy",
+              "rank": 400,
+              "unitName": "kJ"
+            },
+            "amount": 454.0
+          },
+          {
+            "id": 1398676,
+            "nutrient": {
+              "id": 1003,
+              "number": "203",
+              "name": "Protein",
+              "rank": 600,
+              "unitName": "g"
+            },
+            "amount": 1.79
+          },
+          {
+            "id": 1398650,
+            "nutrient": {
+              "id": 1004,
+              "number": "204",
+              "name": "Total lipid (fat)",
+              "rank": 800,
+              "unitName": "g"
+            },
+            "amount": 0.2
+          },
+          {
+            "id": 1398663,
+            "nutrient": {
+              "id": 1005,
+              "number": "205",
+              "name": "Carbohydrate, by difference",
+              "rank": 1110,
+              "unitName": "g"
+            },
+            "amount": 24.01
+          }
+        ]
+      }
+    },
+    "survey": {
+      "search": {
+        "fdcId": 2708356,
+        "dataType": "Survey (FNDDS)",
+        "description": "Rice noodles, cooked",
+        "foodNutrients": [
+          {
+            "nutrientId": 1003,
+            "nutrientName": "Protein",
+            "nutrientNumber": "203",
+            "unitName": "G",
+            "value": 1.78
+          },
+          {
+            "nutrientId": 1004,
+            "nutrientName": "Total lipid (fat)",
+            "nutrientNumber": "204",
+            "unitName": "G",
+            "value": 0.2
+          },
+          {
+            "nutrientId": 1005,
+            "nutrientName": "Carbohydrate, by difference",
+            "nutrientNumber": "205",
+            "unitName": "G",
+            "value": 23.87
+          },
+          {
+            "nutrientId": 1008,
+            "nutrientName": "Energy",
+            "nutrientNumber": "208",
+            "unitName": "KCAL",
+            "value": 107
+          }
+        ]
+      },
+      "detail": {
+        "fdcId": 2708356,
+        "dataType": "Survey (FNDDS)",
+        "description": "Rice noodles, cooked",
+        "foodNutrients": [
+          {
+            "id": 34329339,
+            "nutrient": {
+              "id": 1003,
+              "number": "203",
+              "name": "Protein",
+              "rank": 600,
+              "unitName": "g"
+            },
+            "amount": 1.78
+          },
+          {
+            "id": 34329340,
+            "nutrient": {
+              "id": 1004,
+              "number": "204",
+              "name": "Total lipid (fat)",
+              "rank": 800,
+              "unitName": "g"
+            },
+            "amount": 0.2
+          },
+          {
+            "id": 34329341,
+            "nutrient": {
+              "id": 1005,
+              "number": "205",
+              "name": "Carbohydrate, by difference",
+              "rank": 1110,
+              "unitName": "g"
+            },
+            "amount": 23.9
+          },
+          {
+            "id": 34329342,
+            "nutrient": {
+              "id": 1008,
+              "number": "208",
+              "name": "Energy",
+              "rank": 300,
+              "unitName": "kcal"
+            },
+            "amount": 107
+          }
+        ]
+      }
+    },
+    "branded": {
+      "search": {
+        "fdcId": 2078244,
+        "dataType": "Branded",
+        "description": "MILK",
+        "brandName": "WINN-DIXIE",
+        "brandOwner": "Winn-Dixie Stores, Inc.",
+        "servingSize": 240.0,
+        "servingSizeUnit": "ml",
+        "foodNutrients": [
+          {
+            "nutrientId": 1003,
+            "nutrientName": "Protein",
+            "nutrientNumber": "203",
+            "unitName": "G",
+            "value": 3.75
+          },
+          {
+            "nutrientId": 1004,
+            "nutrientName": "Total lipid (fat)",
+            "nutrientNumber": "204",
+            "unitName": "G",
+            "value": 3.33
+          },
+          {
+            "nutrientId": 1005,
+            "nutrientName": "Carbohydrate, by difference",
+            "nutrientNumber": "205",
+            "unitName": "G",
+            "value": 4.58
+          },
+          {
+            "nutrientId": 1008,
+            "nutrientName": "Energy",
+            "nutrientNumber": "208",
+            "unitName": "KCAL",
+            "value": 62.0
+          }
+        ]
+      },
+      "detail": {
+        "fdcId": 2078244,
+        "dataType": "Branded",
+        "description": "MILK",
+        "brandName": "WINN-DIXIE",
+        "brandOwner": "Winn-Dixie Stores, Inc.",
+        "servingSize": 240.0,
+        "servingSizeUnit": "ml",
+        "labelNutrients": {
+          "fat": {
+            "value": 7.99
+          },
+          "saturatedFat": {
+            "value": 4.99
+          },
+          "transFat": {
+            "value": 0.0
+          },
+          "cholesterol": {
+            "value": 36.0
+          },
+          "sodium": {
+            "value": 110
+          },
+          "carbohydrates": {
+            "value": 11.0
+          },
+          "fiber": {
+            "value": 0.0
+          },
+          "sugars": {
+            "value": 11.0
+          },
+          "protein": {
+            "value": 9.0
+          },
+          "calcium": {
+            "value": 300
+          },
+          "iron": {
+            "value": 0.0
+          },
+          "calories": {
+            "value": 149
+          }
+        },
+        "foodNutrients": [
+          {
+            "id": 25447984,
+            "nutrient": {
+              "id": 1008,
+              "number": "208",
+              "name": "Energy",
+              "rank": 300,
+              "unitName": "kcal"
+            },
+            "amount": 62.0
+          },
+          {
+            "id": 25447981,
+            "nutrient": {
+              "id": 1003,
+              "number": "203",
+              "name": "Protein",
+              "rank": 600,
+              "unitName": "g"
+            },
+            "amount": 3.75
+          },
+          {
+            "id": 25447982,
+            "nutrient": {
+              "id": 1004,
+              "number": "204",
+              "name": "Total lipid (fat)",
+              "rank": 800,
+              "unitName": "g"
+            },
+            "amount": 3.33
+          },
+          {
+            "id": 25447983,
+            "nutrient": {
+              "id": 1005,
+              "number": "205",
+              "name": "Carbohydrate, by difference",
+              "rank": 1110,
+              "unitName": "g"
+            },
+            "amount": 4.58
+          }
+        ]
+      }
+    }
+  }
+}
