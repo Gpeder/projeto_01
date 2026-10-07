@@ -5,7 +5,10 @@ import { Icon } from '../../components/student/StudentUi'
 import styles from '../../components/student/Student.module.css'
 import { formatNumber, sumNutrients, type CatalogFood, type Meal } from './studentData'
 import { useStudent } from './StudentPage'
-import { FoodEditor, MealEditor, NameEditor } from './StudentEditors'
+import { MealEditor } from './StudentEditors'
+import FoodEditor from './FoodEditor'
+import NutritionPlanEditor from './NutritionPlanEditor'
+import { formatFoodValue } from './foodDraft'
 
 export default function StudentNutrition() {
   const { nutrition, setNutrition, foods, setFoods } = useStudent()
@@ -13,8 +16,13 @@ export default function StudentNutrition() {
   const [food, setFood] = useState<CatalogFood | null>(null)
   const [planEditor, setPlanEditor] = useState(false)
   const totals = nutrition ? sumNutrients(nutrition.meals) : null
-  const addMeal = () => setMeal({ id: crypto.randomUUID(), name: '', time: '', guidance: '', foods: [], nutrients: { kcal: 0, protein: 0, carbs: 0, fat: 0 } })
-  const addFood = () => setFood({ id: crypto.randomUUID(), name: '', brand: '', preparation: '', amount: 100, unit: 'g', nutrients: { kcal: 0, protein: 0, carbs: 0, fat: 0 } })
+  const calorieDifference = nutrition?.calorieLimit != null && totals?.kcal != null ? nutrition.calorieLimit - totals.kcal : null
+  const calorieStatus = calorieDifference === null ? 'Informe as calorias de todas as refeições para comparar.'
+    : calorieDifference < 0 ? `${formatNumber(Math.abs(calorieDifference))} kcal acima do limite`
+    : calorieDifference > 0 ? `${formatNumber(calorieDifference)} kcal abaixo do limite`
+    : 'Planejado igual ao limite'
+  const addMeal = () => setMeal({ id: crypto.randomUUID(), name: '', time: '', guidance: '', foods: [], nutrients: { kcal: null, protein: null, carbs: null, fat: null } })
+  const addFood = () => setFood({ id: crypto.randomUUID(), name: '', brand: '', preparation: '', amount: 100, unit: 'g', nutrients: { kcal: null, protein: null, carbs: null, fat: null } })
 
   return <>
     <title>Alimentação de Gustavo | consta</title>
@@ -28,17 +36,27 @@ export default function StudentNutrition() {
         <div className={styles.actions}><Button variant="secondary" onClick={addFood}>Cadastrar alimento</Button><Button onClick={() => setPlanEditor(true)}>Editar plano</Button></div>
       </section>
       <dl className={`${styles.metrics} ${styles.totals}`}>
-        <div><dt>Planejado no dia</dt><dd>{formatNumber(totals.kcal)} kcal</dd></div>
-        <div><dt>Proteínas</dt><dd>{formatNumber(totals.protein)} g</dd></div>
-        <div><dt>Carboidratos</dt><dd>{formatNumber(totals.carbs)} g</dd></div>
-        <div><dt>Gorduras</dt><dd>{formatNumber(totals.fat)} g</dd></div>
+        <div><dt>Planejado no dia</dt><dd>{formatFoodValue(totals.kcal, 'kcal')}</dd>
+          <dd className={styles.calorieDetails}>
+            <span>Limite diário: {nutrition.calorieLimit === null ? 'não definido' : formatFoodValue(nutrition.calorieLimit, 'kcal')}</span>
+            {nutrition.calorieLimit !== null ? <span className={calorieDifference !== null && calorieDifference < 0 ? styles.overLimit : undefined}>{calorieStatus}</span>
+              : <button className={styles.limitAction} onClick={() => setPlanEditor(true)}>Definir limite</button>}
+          </dd>
+        </div>
+        <div className={styles.nutrient} data-nutrient="protein"><dt>Proteínas</dt><dd>{formatFoodValue(totals.protein, 'g')}</dd></div>
+        <div className={styles.nutrient} data-nutrient="carbs"><dt>Carboidratos</dt><dd>{formatFoodValue(totals.carbs, 'g')}</dd></div>
+        <div className={styles.nutrient} data-nutrient="fat"><dt>Gorduras</dt><dd>{formatFoodValue(totals.fat, 'g')}</dd></div>
       </dl>
       {nutrition.meals.length ? nutrition.meals.map((item) => <section className={styles.meal} key={item.id} aria-label={item.name}>
         <div className={styles.mealHeading}>
           <div>{item.time ? <time>{item.time}</time> : null}<h3>{item.name}</h3></div>
           <div><strong>{formatNumber(item.nutrients.kcal)} kcal planejadas</strong><div><button className={styles.action} onClick={() => setMeal(item)} aria-label={`Editar ${item.name}`}>Editar refeição</button></div></div>
         </div>
-        <p className={styles.muted}>{formatNumber(item.nutrients.protein)} g P · {formatNumber(item.nutrients.carbs)} g C · {formatNumber(item.nutrients.fat)} g G</p>
+        <p className={styles.mealMacros}>
+          <span className={styles.nutrient} data-nutrient="protein">Proteínas {formatFoodValue(item.nutrients.protein, 'g')}</span>
+          <span className={styles.nutrient} data-nutrient="carbs">Carboidratos {formatFoodValue(item.nutrients.carbs, 'g')}</span>
+          <span className={styles.nutrient} data-nutrient="fat">Gorduras {formatFoodValue(item.nutrients.fat, 'g')}</span>
+        </p>
         {item.guidance ? <p className={styles.muted}>{item.guidance}</p> : null}
         <ul>{item.foods.map((entry) => <li key={entry.id} className={styles.food}>
           <span>{entry.name} · {formatNumber(entry.quantity)} {entry.unit}</span>
@@ -55,12 +73,15 @@ export default function StudentNutrition() {
     {foods.length ? <section className={styles.section}>
       <div className={styles.row}><h2>Alimentos cadastrados</h2><Button variant="secondary" onClick={addFood}>Cadastrar alimento</Button></div>
       {foods.map((item) => <div className={styles.food} key={item.id}>
-        <div><strong>{item.name}</strong><p>{formatNumber(item.amount)} {item.unit} · {formatNumber(item.nutrients.kcal)} kcal</p></div>
+        <div><strong>{item.name}</strong><p>{formatFoodValue(item.amount, item.unit)} · {item.nutrients.kcal === null ? 'Calorias não informadas' : formatFoodValue(item.nutrients.kcal, 'kcal')}</p>
+          {Object.values(item.nutrients).some((value) => value === null) ? <p>Informações nutricionais incompletas</p> : null}
+          {item.usda ? <p>{item.usda.manuallyEdited ? 'Origem USDA · editado manualmente' : 'Dados USDA'} · FDC {item.usda.original.fdcId}</p> : null}
+        </div>
         <button className={styles.action} onClick={() => setFood(item)} aria-label={`Editar cadastro de ${item.name}`}>Editar</button>
       </div>)}
     </section> : null}
-    {planEditor ? <NameEditor title={nutrition ? 'Editar plano alimentar' : 'Criar plano alimentar'} label="Nome do plano" initialName={nutrition?.name ?? ''}
-      close={() => setPlanEditor(false)} save={(name) => { setNutrition((old) => ({ name, meals: old?.meals ?? [] })); setPlanEditor(false) }} /> : null}
+    {planEditor ? <NutritionPlanEditor plan={nutrition}
+      close={() => setPlanEditor(false)} save={(details) => { setNutrition((old) => ({ ...details, meals: old?.meals ?? [] })); setPlanEditor(false) }} /> : null}
     {meal ? <MealEditor meal={meal} foods={foods} close={() => setMeal(null)} save={(updated) => {
       setNutrition((old) => old ? { ...old, meals: old.meals.some((entry) => entry.id === updated.id) ? old.meals.map((entry) => entry.id === updated.id ? updated : entry) : [...old.meals, updated] } : old)
       setMeal(null)

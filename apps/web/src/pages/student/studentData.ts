@@ -1,3 +1,5 @@
+import type { ApiFood } from '../../api/foods.ts'
+
 export type Exercise = {
   id: string
   name: string
@@ -8,7 +10,7 @@ export type Exercise = {
 }
 
 export type Workout = { id: string; name: string; description: string; exercises: Exercise[] }
-export type Nutrients = { kcal: number; protein: number; carbs: number; fat: number }
+export type Nutrients = { kcal: number | null; protein: number | null; carbs: number | null; fat: number | null }
 export type Food = { id: string; name: string; quantity: number; unit: string }
 export type CatalogFood = {
   id: string
@@ -18,6 +20,12 @@ export type CatalogFood = {
   amount: number
   unit: string
   nutrients: Nutrients
+  usda?: {
+    original: ApiFood
+    manuallyEdited: boolean
+    modifiedFields: string[]
+    referenceReviewed: boolean
+  }
 }
 export type Meal = {
   id: string
@@ -27,7 +35,7 @@ export type Meal = {
   nutrients: Nutrients
   foods: Food[]
 }
-export type NutritionPlan = { name: string; meals: Meal[] }
+export type NutritionPlan = { name: string; calorieLimit: number | null; meals: Meal[] }
 export type Session = {
   id: string
   date: string
@@ -82,6 +90,7 @@ export const sessions: Session[] = [
 
 export const initialNutrition: NutritionPlan = {
   name: 'Plano alimentar — Junho',
+  calorieLimit: null,
   meals: [
     { id: 'breakfast', name: 'Café da manhã', time: '07:30', guidance: '',
       nutrients: { kcal: 430, protein: 28, carbs: 52, fat: 12 }, foods: [
@@ -127,12 +136,13 @@ export const photos = [
 const dateFormatter = new Intl.DateTimeFormat('pt-BR', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' })
 export const numberFormatter = new Intl.NumberFormat('pt-BR', { maximumFractionDigits: 1 })
 export function formatDate(date: string) { return dateFormatter.format(new Date(`${date}T12:00:00Z`)) }
-export function formatNumber(value: number) { return numberFormatter.format(value) }
+export function formatNumber(value: number | null) { return value === null ? 'Não informado' : numberFormatter.format(value) }
 export function sumNutrients(meals: Meal[]): Nutrients {
-  return meals.reduce((total, meal) => ({
-    kcal: total.kcal + meal.nutrients.kcal,
-    protein: total.protein + meal.nutrients.protein,
-    carbs: total.carbs + meal.nutrients.carbs,
-    fat: total.fat + meal.nutrients.fat,
+  const add = (a: number | null, b: number | null) => a === null || b === null ? null : a + b
+  return meals.reduce<Nutrients>((total, meal) => ({
+    kcal: add(total.kcal, meal.nutrients.kcal),
+    protein: add(total.protein, meal.nutrients.protein),
+    carbs: add(total.carbs, meal.nutrients.carbs),
+    fat: add(total.fat, meal.nutrients.fat),
   }), { kcal: 0, protein: 0, carbs: 0, fat: 0 })
 }

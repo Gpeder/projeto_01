@@ -10,19 +10,25 @@
 - Ao concluir uma etapa, informar alterações, verificações, limitações e estado do Git;
   parar e aguardar a próxima tarefa, sem antecipar sua implementação.
 
-## Etapa atual: base do monorepo
+## Etapa atual: cadastro de alimentos conectado à API interna
 
 - Usar pnpm workspaces e um único `pnpm-lock.yaml` na raiz.
 - Manter o `package.json` raiz privado e `packageManager` alinhado ao pnpm utilizado.
-- Manter `apps/web` com o template oficial React + TypeScript do Vite, TypeScript strict,
-  tela padrão, logos, contador, estilos e assets originais.
+- Manter React + TypeScript strict + Vite e preservar o layout, os componentes,
+  os temas e os tokens existentes em `apps/web`.
 - Manter `packages` e `docs` reservados com `.gitkeep` enquanto estiverem vazios.
-- Não criar código de negócio, telas ou componentes próprios, temas, tokens ou navegação.
-- Não instalar bibliotecas de interface, estado, formulários ou requisições.
-- Não configurar API, Prisma, banco, Docker, Turborepo ou Nx.
+- Integrar o cadastro existente aos endpoints `GET /foods` e `GET /foods/:id`
+  de `apps/api`, preservando o preenchimento manual e o estado local atual.
+- Manter a chave USDA exclusivamente no backend, sem exibir seu conteúdo.
+- Preservar dados de origem e nutrientes ausentes como `null`, distinguir zero
+  de campo vazio e exigir revisão dos dados antes de salvar.
+- Não implementar persistência nova, autenticação, cálculos de porção, soma dos
+  alimentos de uma refeição, tradução automática ou mudanças nas demais áreas.
+- Não instalar dependências sem justificativa aprovada no plano.
+- Não configurar Prisma, banco, Docker, Turborepo ou Nx nem recriar o backend.
 - Não criar pastas vazias de controllers, services, repositories ou features.
-- Documentar somente como futuros: `apps/api` (Node.js + Fastify), `packages/database`
-  (Prisma + PostgreSQL) e `apps/mobile` (Flutter). Não criar esses diretórios nesta etapa.
+- Documentar somente como futuros: `packages/database` (Prisma + PostgreSQL)
+  e `apps/mobile` (Flutter). Não criar esses diretórios nesta etapa.
 
 ## Referência do Figma
 
@@ -33,7 +39,11 @@
 
 ## Verificações
 
-- Instalar dependências com pnpm na raiz.
-- Executar `pnpm dev`, `pnpm build`, `pnpm lint` e `pnpm typecheck`.
-- Quando houver acesso ao navegador, verificar a tela padrão, os logos e o contador.
+- Quando necessário, instalar dependências com pnpm na raiz.
+- Antes da integração, executar `pnpm --filter ./apps/api test:live` sem imprimir
+  a chave e identificar a causa de eventual falha.
+- Executar `pnpm dev`, `pnpm build`, `pnpm lint`, `pnpm typecheck` e os testes pertinentes.
+- Quando houver acesso ao navegador, verificar cadastro manual, busca e detalhes
+  reais, revisão e edição, dados ausentes, erros, cancelamento, respostas antigas,
+  temas claro/escuro, movimento reduzido e responsividade.
 - Informar explicitamente qualquer verificação que não puder ser executada.

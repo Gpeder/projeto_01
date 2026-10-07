@@ -92,6 +92,28 @@
   .editorItem { display: flex; flex-direction: column; gap: .875rem; padding: 1.125rem 0; border-top: 1px solid var(--border); }
   .editorItem legend { font-size: .8125rem; font-weight: 600; padding-right: .5rem; }
   .error { color: var(--error); font-size: .8125rem; }
+  .foodForm { margin-top: 1.25rem; }
+  .foodModes > .tabs { gap: .75rem; }
+  .foodModes > .tabs button { min-width: 0; flex: 1; padding-inline: .25rem; }
+  .foodSearch { display: flex; flex-direction: column; gap: 1rem; }
+  .searchResults { min-height: 9rem; }
+  .searchFeedback { display: flex; flex-direction: column; gap: .75rem; }
+  .foodResults { max-height: 19rem; overflow-y: auto; overscroll-behavior: contain; }
+  .foodResults li { display: flex; align-items: center; justify-content: space-between; gap: .75rem; padding: .875rem 0; border-bottom: 1px solid var(--border); font-size: .8125rem; }
+  .foodResults li > div { min-width: 0; overflow-wrap: anywhere; }
+  .foodResults li > button { flex-shrink: 0; }
+  .foodResults p { color: var(--muted); margin-top: .25rem; }
+  .searchPagination { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .5rem; margin-top: 1rem; font-size: .75rem; }
+  .detailStatus { min-height: 3rem; }
+  .detailStatus > p { display: flex; align-items: center; gap: .5rem; }
+  .loadingIndicator { width: 1rem; height: 1rem; flex-shrink: 0; border: 2px solid currentColor; border-right-color: transparent; border-radius: 50%; animation: food-loading calc(var(--duration-slow) * 3) linear infinite; }
+  .foodSource { padding: .875rem; border: 1px solid var(--border); border-radius: .5rem; background: var(--surface-muted); font-size: .8125rem; overflow-wrap: anywhere; }
+  .foodSource details, .foodSource details p { margin-top: .5rem; }
+  .foodSource summary { cursor: pointer; min-height: 2.75rem; align-content: center; }
+  .form .reviewCheck { flex-direction: row; align-items: flex-start; margin-top: .75rem; }
+  .reviewCheck input { width: 1.25rem; min-height: 1.25rem; flex-shrink: 0; accent-color: var(--primary); }
+  @keyframes food-loading { to { transform: rotate(360deg); } }
+  @media (prefers-reduced-motion: reduce) { .loadingIndicator { animation: none; } }
   .metrics { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); padding: 0 0 1.625rem; border-bottom: 1px solid var(--border); font-variant-numeric: tabular-nums; }
   .metrics > div { min-width: 0; display: flex; flex-direction: column; gap: .4375rem; padding: 0 1.25rem; border-left: 1px solid var(--border); }
   .metrics > div:first-child { padding-left: 0; border: 0; }
@@ -99,7 +121,17 @@
   .metrics dd { font: 600 1.5rem var(--font-heading); }
   .metrics small { color: var(--muted); font-size: .6875rem; }
   .totals { grid-template-columns: 1.5fr repeat(3, minmax(0, 1fr)); margin-top: 1.125rem; padding: 1.375rem 0; border-top: 1px solid var(--border); }
-  .totals dd { font-size: 1.3125rem; }
+  .totals dd { padding-block: .25rem; font-size: 1.3125rem; }
+  .nutrient { --nutrient-color: var(--foreground); color: var(--nutrient-color); }
+  .nutrient[data-nutrient='protein'] { --nutrient-color: var(--nutrient-protein); }
+  .nutrient[data-nutrient='carbs'] { --nutrient-color: var(--nutrient-carbs); }
+  .nutrient[data-nutrient='fat'] { --nutrient-color: var(--nutrient-fat); }
+  .totals .nutrient dt { color: var(--nutrient-color); }
+  .totals .nutrient dd { align-self: flex-start; padding-inline: .5rem; border-radius: .375rem; background: color-mix(in srgb, var(--nutrient-color) 8%, transparent); }
+  .totals .calorieDetails { display: flex; flex-direction: column; align-items: flex-start; gap: .375rem; padding: 0; color: var(--muted); font: 400 .75rem/1.5 var(--font-sans); }
+  .overLimit { color: var(--warning); font-weight: 600; }
+  .limitAction { min-height: 2.75rem; color: var(--foreground); font-weight: 600; text-decoration: underline; text-underline-offset: .2rem; cursor: pointer; }
+  .mealMacros { display: flex; flex-wrap: wrap; gap: .375rem 1rem; margin-top: .5rem; font-size: .8125rem; line-height: 1.6; }
   .meal { padding: 1.5rem 0; border-bottom: 1px solid var(--border); }
   .mealHeading { display: flex; align-items: flex-start; justify-content: space-between; gap: 1.5rem; }
   .mealHeading > div:first-child { display: flex; align-items: center; gap: .75rem; }

@@ -2,7 +2,8 @@
 
 Backend mínimo em Node.js 22.23.2 ou superior, TypeScript strict e Fastify.
 Consulta a FoodData Central e expõe um contrato próprio. A execução é local,
-em `127.0.0.1`, sem conexão com o frontend nesta etapa.
+em `127.0.0.1`. O frontend consulta estes endpoints pelo proxy `/api` do Vite
+durante o desenvolvimento; a chave permanece exclusivamente neste backend.
 
 ## Configuração e execução
 

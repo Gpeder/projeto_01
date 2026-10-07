@@ -70,6 +70,27 @@
 
   .loadingLabel {
     visibility: hidden;
+    position: relative;
+  }
+
+  .loadingLabel::before {
+    content: '';
+    position: absolute;
+    inset-inline-start: -.875rem;
+    top: calc(50% - .3125rem);
+    width: .625rem;
+    height: .625rem;
+    border: 2px solid currentColor;
+    border-right-color: transparent;
+    border-radius: 50%;
+  }
+
+  .button[data-loading='true'] .loadingLabel::before {
+    animation: loading-spin calc(var(--duration-slow) * 3) linear infinite;
+  }
+
+  @keyframes loading-spin {
+    to { transform: rotate(360deg); }
   }
 
   .button[data-loading='true'] .label {
@@ -143,6 +164,9 @@
   @media (prefers-reduced-motion: reduce) {
     .button {
       transition: none;
+    }
+    .button[data-loading='true'] .loadingLabel::before {
+      animation: none;
     }
   }
 }

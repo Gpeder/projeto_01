@@ -4,14 +4,14 @@ import { Modal } from '../../components/student/StudentUi'
 import styles from '../../components/student/Student.module.css'
 import { type CatalogFood, type Meal, type Nutrients } from './studentData'
 
-export const nutrientFields = [
+const nutrientFields = [
   { key: 'kcal', label: 'Calorias (kcal)' }, { key: 'protein', label: 'Proteínas (g)' },
   { key: 'carbs', label: 'Carboidratos (g)' }, { key: 'fat', label: 'Gorduras (g)' },
 ] as const
 
 function NutrientFields({ value, change }: { value: Nutrients; change: (value: Nutrients) => void }) {
-  return <div className={styles.formGrid}>{nutrientFields.map(({ key, label }) => <label key={key}>{label}
-    <input required type="number" min={0} max={100000} step="0.1" value={value[key]} onChange={(event) => change({ ...value, [key]: Number(event.target.value) })} />
+  return <div className={styles.formGrid}>{nutrientFields.map(({ key, label }) => <label key={key} className={styles.nutrient} data-nutrient={key}>{label}
+    <input required type="number" min={0} max={100000} step="any" value={value[key] ?? ''} onChange={(event) => change({ ...value, [key]: event.target.value === '' ? null : Number(event.target.value) })} />
   </label>)}</div>
 }
 
@@ -76,27 +76,6 @@ export function MealEditor({ meal, foods, close, save }: { meal: Meal; foods: Ca
       <h3>Totais planejados da refeição</h3>
       <NutrientFields value={draft.nutrients} change={(nutrients) => setDraft({ ...draft, nutrients })} />
       {error ? <p role="alert" className={styles.error}>{error}</p> : null}
-    </form>
-  </Modal>
-}
-
-export function FoodEditor({ food, close, save }: { food: CatalogFood; close: () => void; save: (food: CatalogFood) => void }) {
-  const [draft, setDraft] = useState(food)
-  const [dirty, setDirty] = useState(false)
-  const formId = useId()
-  const attemptClose = () => { if (!dirty || window.confirm('Descartar alterações não salvas?')) close() }
-  return <Modal title={food.name ? 'Editar alimento' : 'Cadastrar alimento'} close={attemptClose}
-    footer={<><Button variant="secondary" onClick={attemptClose}>Cancelar</Button><Button type="submit" form={formId} disabled={!draft.name.trim()}>Salvar alimento</Button></>}>
-    <form id={formId} className={styles.form} onChange={() => setDirty(true)} onSubmit={(event) => { event.preventDefault(); if (draft.name.trim()) save({ ...draft, name: draft.name.trim() }) }}>
-      <label>Nome do alimento<input required maxLength={100} value={draft.name} onChange={(event) => setDraft({ ...draft, name: event.target.value })} /></label>
-      <div className={styles.formGrid}>
-        <label>Marca (opcional)<input maxLength={100} value={draft.brand} onChange={(event) => setDraft({ ...draft, brand: event.target.value })} /></label>
-        <label>Preparo (opcional)<input maxLength={100} value={draft.preparation} onChange={(event) => setDraft({ ...draft, preparation: event.target.value })} /></label>
-        <label>Quantidade de referência<input required type="number" min={0.1} max={100000} step="0.1" value={draft.amount} onChange={(event) => setDraft({ ...draft, amount: Number(event.target.value) })} /></label>
-        <label>Unidade<select value={draft.unit} onChange={(event) => setDraft({ ...draft, unit: event.target.value })}><option>g</option><option>ml</option><option>porção</option></select></label>
-      </div>
-      <h3>Nutrientes na quantidade de referência</h3>
-      <NutrientFields value={draft.nutrients} change={(nutrients) => setDraft({ ...draft, nutrients })} />
     </form>
   </Modal>
 }

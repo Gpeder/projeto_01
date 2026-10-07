@@ -29,7 +29,8 @@ pnpm typecheck
 ## Backend de alimentos
 
 O backend em `apps/api` usa Node.js, TypeScript e Fastify para consultar a USDA
-FoodData Central. A integração é independente do frontend.
+FoodData Central. O cadastro de alimentos na área de alimentação do aluno consulta
+essa API e também permite preenchimento manual.
 
 Copie `apps/api/.env.example` para `apps/api/.env` e preencha `USDA_API_KEY`
 manualmente. O arquivo `.env` está ignorado pelo Git. Na raiz, execute:
@@ -38,6 +39,9 @@ manualmente. O arquivo `.env` está ignorado pelo Git. Na raiz, execute:
 pnpm dev:api
 ```
 
+Execute `pnpm dev` em outro terminal para abrir o frontend. O proxy de
+desenvolvimento encaminha `/api/foods` para `/foods` no backend.
+
 O servidor atende em `http://127.0.0.1:3001`. Os endpoints são
 `GET /foods?query=rice&page=1` e `GET /foods/:id`.
 A busca usa os termos originais da USDA, predominantemente em inglês.
@@ -45,7 +49,9 @@ A busca usa os termos originais da USDA, predominantemente em inglês.
 `pnpm build`, `pnpm lint` e `pnpm typecheck` verificam os dois aplicativos.
 `pnpm test:api` executa os testes locais; `pnpm --filter api test:live` verifica
 busca e detalhes na USDA com a chave configurada. Instruções, contrato e limites
-estão em [apps/api/README.md](apps/api/README.md).
+estão em [apps/api/README.md](apps/api/README.md). Os testes da integração web
+são executados com `pnpm --filter ./apps/web test`. Configuração da URL,
+fluxo de revisão e limites do cadastro estão em [apps/web/README.md](apps/web/README.md).
 
 ## Base visual
 
@@ -147,7 +153,9 @@ destrutiva mantém texto e borda de erro, com superfície secundária no hover e
 durante o clique, preservando o contraste do texto.
 
 `loading` bloqueia o botão nativamente, assim como `disabled`, aplica `aria-busy`
-e anuncia o texto de carregamento sem spinner. O nome acessível original é
+e anuncia o texto de carregamento com um indicador CSS discreto. A animação
+usa os tokens de movimento e é desativada com `prefers-reduced-motion`,
+preservando o texto de status. O nome acessível original é
 preservado. Os dois rótulos reservam espaço desde o início para não alterar a
 largura ao alternar `loading`; mantenha `children` e `loadingLabel` estáveis
 durante a operação. Se mudar o próprio conteúdo, seu tamanho pode mudar.
