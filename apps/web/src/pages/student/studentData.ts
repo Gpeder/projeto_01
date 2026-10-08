@@ -11,7 +11,7 @@ export type Exercise = {
 
 export type Workout = { id: string; name: string; description: string; exercises: Exercise[] }
 export type Nutrients = { kcal: number | null; protein: number | null; carbs: number | null; fat: number | null }
-export type Food = { id: string; name: string; quantity: number; unit: string }
+export type Food = { id: string; name: string; quantity: number; unit: string; snapshot?: FoodSnapshot }
 export type CatalogFood = {
   id: string
   name: string
@@ -32,8 +32,20 @@ export type Meal = {
   name: string
   time: string
   guidance: string
+  totalsMode: 'manual' | 'calculated'
+  // Valores manuais preservados, inclusive enquanto o modo calculado está ativo.
   nutrients: Nutrients
   foods: Food[]
+}
+export type FoodSnapshot = {
+  catalogId: string
+  name: string
+  brand: string
+  preparation: string
+  reference: { quantity: number; unit: string }
+  nutrients: Nutrients
+  source: 'manual' | 'usda'
+  usda?: CatalogFood['usda']
 }
 export type NutritionPlan = { name: string; calorieLimit: number | null; meals: Meal[] }
 export type Session = {
@@ -92,24 +104,24 @@ export const initialNutrition: NutritionPlan = {
   name: 'Plano alimentar — Junho',
   calorieLimit: null,
   meals: [
-    { id: 'breakfast', name: 'Café da manhã', time: '07:30', guidance: '',
+    { id: 'breakfast', name: 'Café da manhã', time: '07:30', guidance: '', totalsMode: 'manual',
       nutrients: { kcal: 430, protein: 28, carbs: 52, fat: 12 }, foods: [
         { id: 'f1', name: 'Iogurte natural', quantity: 170, unit: 'g' },
         { id: 'f2', name: 'Banana', quantity: 1, unit: 'unidade' },
         { id: 'f3', name: 'Aveia em flocos', quantity: 30, unit: 'g' },
       ] },
-    { id: 'lunch', name: 'Almoço', time: '12:30', guidance: '',
+    { id: 'lunch', name: 'Almoço', time: '12:30', guidance: '', totalsMode: 'manual',
       nutrients: { kcal: 710, protein: 52, carbs: 78, fat: 20 }, foods: [
         { id: 'f4', name: 'Arroz integral cozido', quantity: 150, unit: 'g' },
         { id: 'f5', name: 'Feijão carioca cozido', quantity: 100, unit: 'g' },
         { id: 'f6', name: 'Peito de frango grelhado', quantity: 160, unit: 'g' },
       ] },
-    { id: 'snack', name: 'Lanche', time: '16:30', guidance: '',
+    { id: 'snack', name: 'Lanche', time: '16:30', guidance: '', totalsMode: 'manual',
       nutrients: { kcal: 320, protein: 20, carbs: 40, fat: 8 }, foods: [
         { id: 'f7', name: 'Pão integral', quantity: 2, unit: 'fatia' },
         { id: 'f8', name: 'Queijo branco', quantity: 40, unit: 'g' },
       ] },
-    { id: 'dinner', name: 'Jantar', time: '20:00', guidance: '',
+    { id: 'dinner', name: 'Jantar', time: '20:00', guidance: '', totalsMode: 'manual',
       nutrients: { kcal: 640, protein: 40, carbs: 60, fat: 25 }, foods: [
         { id: 'f9', name: 'Batata assada', quantity: 220, unit: 'g' },
         { id: 'f10', name: 'Carne bovina grelhada', quantity: 150, unit: 'g' },
@@ -137,12 +149,3 @@ const dateFormatter = new Intl.DateTimeFormat('pt-BR', { day: 'numeric', month: 
 export const numberFormatter = new Intl.NumberFormat('pt-BR', { maximumFractionDigits: 1 })
 export function formatDate(date: string) { return dateFormatter.format(new Date(`${date}T12:00:00Z`)) }
 export function formatNumber(value: number | null) { return value === null ? 'Não informado' : numberFormatter.format(value) }
-export function sumNutrients(meals: Meal[]): Nutrients {
-  const add = (a: number | null, b: number | null) => a === null || b === null ? null : a + b
-  return meals.reduce<Nutrients>((total, meal) => ({
-    kcal: add(total.kcal, meal.nutrients.kcal),
-    protein: add(total.protein, meal.nutrients.protein),
-    carbs: add(total.carbs, meal.nutrients.carbs),
-    fat: add(total.fat, meal.nutrients.fat),
-  }), { kcal: 0, protein: 0, carbs: 0, fat: 0 })
-}

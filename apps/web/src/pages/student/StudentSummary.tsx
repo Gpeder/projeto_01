@@ -2,7 +2,8 @@ import { Link } from 'react-router'
 import { timeOutline } from 'ionicons/icons'
 import { Icon, SectionTitle } from '../../components/student/StudentUi'
 import styles from '../../components/student/Student.module.css'
-import { formatDate, formatNumber, measurements, sessions, student, sumNutrients, weights } from './studentData'
+import { formatDate, formatNumber, measurements, sessions, student, weights } from './studentData'
+import { formatMealNutrient, sumNutrients } from './nutritionCalculations'
 import { useStudent } from './StudentPage'
 
 const week = [
@@ -50,7 +51,7 @@ export default function StudentSummary() {
       <section className={styles.section}>
         <div className={styles.row}><SectionTitle>Plano alimentar vigente</SectionTitle><Link className={styles.action} to="alimentacao">Ver plano</Link></div>
         <h3>{nutrition?.name ?? 'Sem plano alimentar'}</h3>
-        {totals && nutrition ? <p>Planejado: {formatNumber(totals.kcal)} kcal · {formatNumber(totals.protein)} g de proteína · {nutrition.meals.length} refeições</p> : null}
+        {totals && nutrition ? <p>{nutrition.meals.length === 0 ? 'Nenhuma refeição adicionada' : `Planejado: ${formatMealNutrient(totals.kcal, 'kcal')} · Proteínas: ${formatMealNutrient(totals.protein, 'g')} · ${nutrition.meals.length} refeições`}</p> : null}
       </section>
     </div>
     <div className={styles.columns}>

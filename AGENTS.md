@@ -10,20 +10,24 @@
 - Ao concluir uma etapa, informar alterações, verificações, limitações e estado do Git;
   parar e aguardar a próxima tarefa, sem antecipar sua implementação.
 
-## Etapa atual: cadastro de alimentos conectado à API interna
+## Etapa atual: nutrientes por quantidade e totais automáticos das refeições
 
 - Usar pnpm workspaces e um único `pnpm-lock.yaml` na raiz.
 - Manter o `package.json` raiz privado e `packageManager` alinhado ao pnpm utilizado.
 - Manter React + TypeScript strict + Vite e preservar o layout, os componentes,
   os temas e os tokens existentes em `apps/web`.
 - Manter `packages` e `docs` reservados com `.gitkeep` enquanto estiverem vazios.
-- Integrar o cadastro existente aos endpoints `GET /foods` e `GET /foods/:id`
+- Preservar o cadastro integrado aos endpoints `GET /foods` e `GET /foods/:id`
   de `apps/api`, preservando o preenchimento manual e o estado local atual.
 - Manter a chave USDA exclusivamente no backend, sem exibir seu conteúdo.
 - Preservar dados de origem e nutrientes ausentes como `null`, distinguir zero
   de campo vazio e exigir revisão dos dados antes de salvar.
-- Não implementar persistência nova, autenticação, cálculos de porção, soma dos
-  alimentos de uma refeição, tradução automática ou mudanças nas demais áreas.
+- Calcular localmente nutrientes por quantidade, na mesma unidade da referência,
+  e totais das refeições por alimento, sem consultar novamente a USDA.
+- Preservar cópias independentes dos dados do catálogo nas refeições e os totais
+  manuais existentes, com escolha explícita entre modo manual e calculado.
+- Não implementar persistência nova, autenticação, conversão entre unidades,
+  tradução automática ou mudanças nas demais áreas.
 - Não instalar dependências sem justificativa aprovada no plano.
 - Não configurar Prisma, banco, Docker, Turborepo ou Nx nem recriar o backend.
 - Não criar pastas vazias de controllers, services, repositories ou features.
@@ -47,3 +51,27 @@
   reais, revisão e edição, dados ausentes, erros, cancelamento, respostas antigas,
   temas claro/escuro, movimento reduzido e responsividade.
 - Informar explicitamente qualquer verificação que não puder ser executada.
+
+## Leitura eficiente do projeto
+
+- Leia apenas os arquivos pertinentes à tarefa e suas dependências diretas.
+  Amplie a investigação somente quando necessário.
+- Localize arquivos e símbolos com buscas direcionadas antes de abrir arquivos inteiros.
+- Não faça varreduras completas do monorepo em toda solicitação.
+- Evite ler `node_modules`, `dist`, `build`, `coverage`, caches, arquivos gerados
+  e logs extensos, salvo quando necessários ao diagnóstico.
+- Consulte `pnpm-lock.yaml` somente em tarefas de dependências, instalação
+  ou problemas relacionados.
+- Não leia o conteúdo de `.env` ou credenciais. Para conferir configuração,
+  use `.env.example` e verifique presença de variáveis sem imprimir valores.
+- Consulte “Pasta sem título” somente quando eu solicitar referência visual,
+  limitando a leitura aos componentes envolvidos.
+- Não releia arquivos que já estejam no contexto e não tenham mudado.
+- Leia apenas as skills pertinentes à tarefa.
+- Limite a saída dos comandos aos trechos relevantes.
+- Faça validações proporcionais à alteração, preservando as verificações
+  obrigatórias do projeto.
+- Responda de forma objetiva: alterações, verificações e pendências.
+
+Essas regras não devem impedir a leitura de código necessário para corrigir
+um problema com segurança.

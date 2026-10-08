@@ -2,7 +2,8 @@ import assert from 'node:assert/strict'
 import test from 'node:test'
 import type { ApiFood } from '../src/api/foods.ts'
 import { hasFoodContent, importFood, needsReferenceReview, saveFoodDraft, toFoodDraft } from '../src/pages/student/foodDraft.ts'
-import { sumNutrients, type CatalogFood, type Meal } from '../src/pages/student/studentData.ts'
+import { type CatalogFood, type Meal } from '../src/pages/student/studentData.ts'
+import { sumNutrients } from '../src/pages/student/nutritionCalculations.ts'
 
 const original: ApiFood = {
   fdcId: 123, source: 'USDA FoodData Central', dataType: 'SR Legacy', name: 'Example food',
@@ -75,7 +76,7 @@ test('cadastro manual diferencia vazio de zero e rejeita números inválidos', (
 })
 
 test('ausência em total planejado torna apenas aquele nutriente incompleto', () => {
-  const meal: Meal = { id: 'meal', name: 'Refeição', time: '', guidance: '', foods: [], nutrients: { kcal: 10, protein: null, carbs: 0, fat: 1.5 } }
+  const meal: Meal = { id: 'meal', name: 'Refeição', time: '', guidance: '', totalsMode: 'manual', foods: [], nutrients: { kcal: 10, protein: null, carbs: 0, fat: 1.5 } }
   const totals = sumNutrients([meal, { ...meal, nutrients: { kcal: 20, protein: 2, carbs: 0, fat: 0 } }])
   assert.deepEqual(totals, { kcal: 30, protein: null, carbs: 0, fat: 1.5 })
 })

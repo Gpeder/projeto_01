@@ -45,15 +45,55 @@ o backend mantém seu limite de 10 segundos para o provedor.
 Nutrientes vazios são `null`; zero é um valor informado. Decimais são preservados.
 Os nutrientes correspondem à quantidade e unidade de referência do formulário.
 Referência desconhecida na origem ou alterada pelo usuário exige preenchimento
-e confirmação de revisão. Não há conversão entre unidades ou recálculo por porção.
+e confirmação de revisão. Alterar a referência no cadastro não recalcula seus
+nutrientes automaticamente; os cálculos por quantidade acontecem nas refeições.
 
 O cadastro preserva o FDC ID e uma cópia do contrato original da API, incluindo
 nome, marca, proprietário, tipo, referência, nutrientes e ID de energia.
 Registra edições manuais e os campos diferentes da origem. O modal permite
 consultar esses dados originais, sem atribuir os valores editados à USDA.
-Cadastros incompletos são identificados na listagem. A soma já existente dos
-totais planejados das refeições propaga ausências por nutriente; os alimentos
-do cadastro não são somados automaticamente às refeições.
+Cadastros incompletos são identificados na listagem.
+
+## Quantidades e totais das refeições
+
+Novas refeições começam com totais **Calculados pelos alimentos**. As refeições
+demonstrativas existentes permanecem no modo **Manual**, com seus valores originais.
+O seletor **Origem dos totais** confirma a troca antes de mudar os valores exibidos.
+Os valores manuais, alimentos e quantidades ficam guardados no rascunho; voltar
+ao modo manual restaura esses valores, sem copiar ou somar os totais calculados.
+No modo manual, nutrientes vazios permanecem ausentes e os totais são editáveis.
+
+Ao incluir um alimento cadastrado, a refeição recebe uma cópia independente do
+ID do catálogo, nome, marca, preparo, referência nutricional, nutrientes e origem.
+Para USDA, também guarda os dados originais e a identificação das edições manuais.
+Editar o cadastro depois não modifica refeições já montadas. Atualizar um vínculo
+é uma ação explícita, com confirmação. Alimentos antigos sem referência são
+identificados por nome e precisam ser vinculados pelo usuário; não há busca de
+correspondência automática.
+
+Cada nutriente da porção é calculado localmente como
+`nutriente de referência × quantidade na refeição ÷ quantidade de referência`.
+As duas quantidades devem ser finitas e maiores que zero, incluindo decimais.
+A quantidade na refeição não modifica a referência. Alimentos vinculados mantêm
+a unidade do cadastro: g, ml, unidade, fatia ou porção, sem conversão entre elas.
+Se uma vinculação mudar a unidade, a confirmação informa que a quantidade será
+reiniciada na referência do novo cadastro, sem converter o valor anterior.
+
+Inclusão, edição de quantidade e remoção atualizam imediatamente os nutrientes
+por alimento e o total calculado no editor. Salvar aplica a refeição ao plano;
+cancelar preserva a versão anterior. Não há nova consulta USDA nem loading para
+cálculos. Totais são derivados dos dados atuais, sem estado duplicado. Precisão
+numérica é mantida nos cálculos; apenas a apresentação arredonda para até duas
+casas decimais.
+
+Zero nutricional é conhecido; `null` indica ausência. Se algum alimento tiver
+um nutriente ausente ou inválido, somente esse total fica **Incompleto**. Não são
+apresentados subtotais como totais completos. Quantidades inválidas ou unidades
+incompatíveis impedem o cálculo daquela porção. Uma refeição calculada vazia
+mostra um convite para incluir alimentos, sem totais completos de zero.
+
+O total diário e o resumo do aluno usam o modo ativo de cada refeição. A comparação
+com o limite diário fica inconclusiva enquanto houver dados nutricionais incompletos.
 
 Os cadastros continuam no estado local da página do aluno. Recarregar a página
 ou sair dela perde esses dados; não há armazenamento permanente, banco ou login.
@@ -73,5 +113,8 @@ pnpm build
 
 Os testes web usam o executor nativo do Node.js 22.23.2 ou superior, sem novas
 dependências. Cobrem dados ausentes, precisão, origem, revisão de referência,
-erros, timeout, cancelamento e invalidação de respostas fora de ordem.
+erros, timeout, cancelamento e invalidação de respostas fora de ordem. Os testes
+de cálculo também cobrem proporcionalidade, decimais, validação de quantidades e
+referências, unidades incompatíveis, totais parciais, preservação do modo manual,
+independência das cópias, refeições vazias e comparação com o limite diário.
 As respostas simuladas existem somente nos testes, sem uso em produção.
