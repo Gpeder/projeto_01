@@ -1,6 +1,19 @@
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
-import { validateConfig } from '../src/config.js'
+import { databaseUrl, validateConfig } from '../src/config.js'
+import { testDatabaseUrl } from './testDatabaseUrl.js'
+
+test('valida URL sem revelar credenciais e protege o destino dos testes', () => {
+  assert.throws(() => databaseUrl({ DATABASE_URL: 'https://secret:private@host' }), /Configure DATABASE_URL/)
+  assert.equal(databaseUrl({ DATABASE_URL: 'postgresql://local/db' }), 'postgresql://local/db')
+  for (const env of [
+    {}, { DATABASE_URL: 'postgresql://local/projeto_catalog_dev' },
+    { TEST_DATABASE_URL: 'postgresql://local/projeto_catalog_dev' },
+    { DATABASE_URL: 'postgresql://dev:password@localhost/projeto_catalog_test', TEST_DATABASE_URL: 'postgresql://test:other@127.0.0.1:5432/projeto_catalog_test' },
+  ]) assert.throws(() => testDatabaseUrl(env), /banco exclusivo/)
+  const valid = 'postgresql://local/projeto_catalog_test'
+  assert.equal(testDatabaseUrl({ DATABASE_URL: 'postgresql://local/projeto_catalog_dev', TEST_DATABASE_URL: valid }), valid)
+})
 
 test('exige a chave e não inclui o valor nos erros', () => {
   for (const value of [undefined, '', ' ', 'invalid secret with spaces']) {

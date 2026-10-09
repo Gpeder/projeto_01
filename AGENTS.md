@@ -10,15 +10,16 @@
 - Ao concluir uma etapa, informar alterações, verificações, limitações e estado do Git;
   parar e aguardar a próxima tarefa, sem antecipar sua implementação.
 
-## Etapa atual: nutrientes por quantidade e totais automáticos das refeições
+## Etapa atual: persistência do catálogo de alimentos
 
 - Usar pnpm workspaces e um único `pnpm-lock.yaml` na raiz.
 - Manter o `package.json` raiz privado e `packageManager` alinhado ao pnpm utilizado.
 - Manter React + TypeScript strict + Vite e preservar o layout, os componentes,
   os temas e os tokens existentes em `apps/web`.
-- Manter `packages` e `docs` reservados com `.gitkeep` enquanto estiverem vazios.
+- Usar `packages/database` para Prisma Client, schema e migrations; manter os
+  `.gitkeep` existentes e `docs` reservado enquanto estiver vazio.
 - Preservar o cadastro integrado aos endpoints `GET /foods` e `GET /foods/:id`
-  de `apps/api`, preservando o preenchimento manual e o estado local atual.
+  de `apps/api`, preservando o preenchimento manual e a revisão USDA.
 - Manter a chave USDA exclusivamente no backend, sem exibir seu conteúdo.
 - Preservar dados de origem e nutrientes ausentes como `null`, distinguir zero
   de campo vazio e exigir revisão dos dados antes de salvar.
@@ -26,13 +27,21 @@
   e totais das refeições por alimento, sem consultar novamente a USDA.
 - Preservar cópias independentes dos dados do catálogo nas refeições e os totais
   manuais existentes, com escolha explícita entre modo manual e calculado.
-- Não implementar persistência nova, autenticação, conversão entre unidades,
-  tradução automática ou mudanças nas demais áreas.
+- Persistir somente alimentos manuais e USDA em PostgreSQL local, via Prisma e
+  backend Fastify. Usar GET/POST /catalog/foods e PUT /catalog/foods/:id.
+- Listar com paginação e permitir acesso a todas as páginas nos seletores.
+- Validar entradas no servidor; preservar null, zero, precisão decimal, origem,
+  revisão e cópias independentes nas refeições. Gravar apenas ao salvar.
+- Usar DATABASE_URL em apps/api/.env, sem sobrescrevê-lo ou revelar credenciais.
+- Usar banco exclusivo de testes via TEST_DATABASE_URL; nunca limpar o banco
+  de desenvolvimento. Aplicar migrations versionadas, sem reset ou drop.
+- Não persistir alunos, planos, refeições, treinos ou evolução; informar que
+  esses dados continuam temporários. Não adicionar exclusão, autenticação,
+  múltiplos usuários, localStorage, conversão de unidades ou tradução automática.
 - Não instalar dependências sem justificativa aprovada no plano.
-- Não configurar Prisma, banco, Docker, Turborepo ou Nx nem recriar o backend.
+- Não configurar Docker, serviços pagos, Turborepo ou Nx nem recriar o backend.
 - Não criar pastas vazias de controllers, services, repositories ou features.
-- Documentar somente como futuros: `packages/database` (Prisma + PostgreSQL)
-  e `apps/mobile` (Flutter). Não criar esses diretórios nesta etapa.
+- Manter `apps/mobile` (Flutter) somente como futuro, sem criar o diretório.
 
 ## Referência do Figma
 

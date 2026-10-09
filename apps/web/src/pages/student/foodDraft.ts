@@ -1,5 +1,7 @@
 import type { ApiFood } from '../../api/foods.ts'
 import type { CatalogFood, Nutrients } from './studentData.ts'
+import type { CatalogInput, CatalogRecord } from '../../api/catalog.ts'
+import { catalogDecimal } from './catalogDecimal.ts'
 
 export const foodNutrientFields = [
   { key: 'kcal', label: 'Calorias (kcal)' }, { key: 'protein', label: 'Proteínas (g)' },
@@ -11,14 +13,14 @@ export type FoodDraft = Omit<CatalogFood, 'amount' | 'nutrients'> & {
   nutrients: Record<keyof Nutrients, string>
 }
 
-const asText = (value: number | null) => value === null ? '' : String(value)
+const asText = (value: number | string | null) => value === null ? '' : String(value)
 const foodNumberFormatter = new Intl.NumberFormat('pt-BR', { maximumFractionDigits: 20 })
 
-export function formatFoodValue(value: number | null, unit: string) {
-  return value === null ? 'Não informado' : `${foodNumberFormatter.format(value)} ${unit}`
+export function formatFoodValue(value: number | string | null, unit: string) {
+  return value === null ? 'Não informado' : `${typeof value === 'string' ? value.replace('.', ',') : foodNumberFormatter.format(value)} ${unit}`
 }
 
-export function toFoodDraft(food: CatalogFood): FoodDraft {
+export function toFoodDraft(food: CatalogFood | CatalogRecord): FoodDraft {
   return {
     ...food,
     amount: String(food.amount),
@@ -48,8 +50,22 @@ export function hasFoodContent(draft: FoodDraft) {
 
 export function needsReferenceReview(draft: FoodDraft) {
   const original = draft.usda?.original.reference
-  return !!original && (original.quantity === null || original.unit === null
-    || Number(draft.amount) !== original.quantity || draft.unit !== original.unit)
+  if (!original) return false
+  try {
+    return original.quantity === null || original.unit === null
+      || catalogDecimal(draft.amount) !== catalogDecimal(String(original.quantity)) || draft.unit !== original.unit
+  } catch { return true }
+}
+
+export function toCatalogInput(draft: FoodDraft): CatalogInput {
+  const validated = saveFoodDraft(draft)
+  const nutrient = (value: string) => value.trim() === '' ? null : catalogDecimal(value)
+  return {
+    name: validated.name, brand: validated.brand, preparation: validated.preparation,
+    amount: catalogDecimal(draft.amount), unit: draft.unit,
+    nutrients: { kcal: nutrient(draft.nutrients.kcal), protein: nutrient(draft.nutrients.protein), carbs: nutrient(draft.nutrients.carbs), fat: nutrient(draft.nutrients.fat) },
+    source: draft.usda ? 'usda' : 'manual', ...(validated.usda ? { usda: validated.usda } : {}),
+  }
 }
 
 function parseNumber(value: string): number | null {

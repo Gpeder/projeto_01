@@ -51,7 +51,7 @@ function isNullableNumber(value: unknown) {
   return value === null || (typeof value === 'number' && Number.isFinite(value) && value >= 0)
 }
 
-function isApiFood(value: unknown): value is ApiFood {
+export function isApiFood(value: unknown): value is ApiFood {
   if (!isRecord(value) || !isRecord(value.reference) || !isRecord(value.nutrients)) return false
   return Number.isSafeInteger(value.fdcId) && Number(value.fdcId) > 0
     && value.source === 'USDA FoodData Central' && typeof value.name === 'string' && !!value.name.trim()

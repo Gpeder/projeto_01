@@ -3,7 +3,7 @@ import { Link, NavLink, Outlet, useOutletContext, useParams } from 'react-router
 import { chevronForward } from 'ionicons/icons'
 import { Icon } from '../../components/student/StudentUi'
 import styles from '../../components/student/Student.module.css'
-import { initialNutrition, initialWorkouts, student, type CatalogFood, type NutritionPlan, type Workout } from './studentData'
+import { initialNutrition, initialWorkouts, student, type NutritionPlan, type Workout } from './studentData'
 
 type StudentContext = {
   workouts: Workout[]
@@ -14,8 +14,6 @@ type StudentContext = {
   setAssigned: Dispatch<SetStateAction<boolean>>
   nutrition: NutritionPlan | null
   setNutrition: Dispatch<SetStateAction<NutritionPlan | null>>
-  foods: CatalogFood[]
-  setFoods: Dispatch<SetStateAction<CatalogFood[]>>
 }
 
 export function useStudent() { return useOutletContext<StudentContext>() }
@@ -26,7 +24,6 @@ export default function StudentPage() {
   const [planName, setPlanName] = useState('Plano ABC — Força base')
   const [assigned, setAssigned] = useState(true)
   const [nutrition, setNutrition] = useState<NutritionPlan | null>(initialNutrition)
-  const [foods, setFoods] = useState<CatalogFood[]>([])
 
   if (studentId !== student.id) return <div className={styles.empty}>
     <title>Aluno não encontrado | consta</title>
@@ -49,7 +46,7 @@ export default function StudentPage() {
       <NavLink to="evolucao">Evolução</NavLink>
     </nav>
     <div className={styles.content}>
-      <Outlet context={{ workouts, setWorkouts, planName, setPlanName, assigned, setAssigned, nutrition, setNutrition, foods, setFoods } satisfies StudentContext} />
+      <Outlet context={{ workouts, setWorkouts, planName, setPlanName, assigned, setAssigned, nutrition, setNutrition } satisfies StudentContext} />
     </div>
   </div>
 }

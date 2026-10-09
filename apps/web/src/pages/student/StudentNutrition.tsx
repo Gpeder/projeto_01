@@ -11,6 +11,9 @@ import NutritionPlanEditor from './NutritionPlanEditor'
 import { formatFoodValue } from './foodDraft'
 import { calculateFoodNutrients, calorieDifference, emptyNutrients, formatMealNutrient, mealNutrients, sumNutrients } from './nutritionCalculations'
 import { MealFoodSource, MealNutrients } from './MealNutrients'
+import { useCatalog } from './useCatalog'
+import { CatalogBrowser } from './CatalogBrowser'
+import type { CatalogRecord } from '../../api/catalog'
 
 function MealSection({ meal, edit, remove }: { meal: Meal; edit: () => void; remove: () => void }) {
   const totals = mealNutrients(meal)
@@ -35,9 +38,11 @@ function MealSection({ meal, edit, remove }: { meal: Meal; edit: () => void; rem
 }
 
 export default function StudentNutrition() {
-  const { nutrition, setNutrition, foods, setFoods } = useStudent()
+  const { nutrition, setNutrition } = useStudent()
+  const catalog = useCatalog()
+  const foods = catalog.state.status === 'success' ? catalog.state.data.items : []
   const [meal, setMeal] = useState<Meal | null>(null)
-  const [food, setFood] = useState<CatalogFood | null>(null)
+  const [food, setFood] = useState<CatalogFood | CatalogRecord | null>(null)
   const [planEditor, setPlanEditor] = useState(false)
   const totals = nutrition ? sumNutrients(nutrition.meals) : null
   const difference = nutrition && totals ? calorieDifference(totals, nutrition.calorieLimit) : null
@@ -46,7 +51,7 @@ export default function StudentNutrition() {
     : difference > 0 ? `${formatNumber(difference)} kcal abaixo do limite`
     : 'Planejado igual ao limite'
   const addMeal = () => setMeal({ id: crypto.randomUUID(), name: '', time: '', guidance: '', totalsMode: 'calculated', foods: [], nutrients: emptyNutrients() })
-  const addFood = () => setFood({ id: crypto.randomUUID(), name: '', brand: '', preparation: '', amount: 100, unit: 'g', nutrients: { kcal: null, protein: null, carbs: null, fat: null } })
+  const addFood = () => setFood({ id: '', name: '', brand: '', preparation: '', amount: 100, unit: 'g', nutrients: { kcal: null, protein: null, carbs: null, fat: null } })
 
   return <>
     <title>Alimentação de Gustavo | consta</title>
@@ -54,6 +59,7 @@ export default function StudentNutrition() {
       <div><p className={styles.eyebrow}>Planejamento alimentar</p><h2>Alimentação de Gustavo</h2></div>
       <Button onClick={nutrition ? addMeal : () => setPlanEditor(true)}><span className={styles.actions}><Icon icon={addOutline} />{nutrition ? 'Adicionar refeição' : 'Criar plano'}</span></Button>
     </div>
+    <p className={styles.muted}>Os alimentos cadastrados ficam salvos. Planos, refeições e demais dados continuam temporários nesta sessão.</p>
     {nutrition && totals ? <>
       <section className={styles.plan} aria-label="Plano alimentar">
         <div><span className={styles.tag}>Plano atual</span><h3>{nutrition.name}</h3><p className={styles.muted}>{nutrition.meals.length} refeições planejadas</p></div>
@@ -78,8 +84,10 @@ export default function StudentNutrition() {
         if (window.confirm('Remover o plano alimentar atual?')) setNutrition(null)
       }}>Remover plano</Button></div>
     </> : <section className={styles.empty}><h3>Sem plano alimentar</h3><Button onClick={() => setPlanEditor(true)}>Criar plano</Button></section>}
-    {foods.length ? <section className={styles.section}>
+    <section className={styles.section} aria-label="Catálogo de alimentos">
       <div className={styles.row}><h2>Alimentos cadastrados</h2><Button variant="secondary" onClick={addFood}>Cadastrar alimento</Button></div>
+      {catalog.lastSaved ? <p role="status" className={styles.muted}>Alimento “{catalog.lastSaved.name}” salvo no catálogo.</p> : null}
+      <CatalogBrowser catalog={catalog}>
       {foods.map((item) => <div className={styles.food} key={item.id}>
         <div><strong>{item.name}</strong><p>{formatFoodValue(item.amount, item.unit)} · {item.nutrients.kcal === null ? 'Calorias não informadas' : formatFoodValue(item.nutrients.kcal, 'kcal')}</p>
           {Object.values(item.nutrients).some((value) => value === null) ? <p>Informações nutricionais incompletas</p> : null}
@@ -87,15 +95,16 @@ export default function StudentNutrition() {
         </div>
         <button className={styles.action} onClick={() => setFood(item)} aria-label={`Editar cadastro de ${item.name}`}>Editar</button>
       </div>)}
-    </section> : null}
+      </CatalogBrowser>
+    </section>
     {planEditor ? <NutritionPlanEditor plan={nutrition}
       close={() => setPlanEditor(false)} save={(details) => { setNutrition((old) => ({ ...details, meals: old?.meals ?? [] })); setPlanEditor(false) }} /> : null}
-    {meal ? <MealEditor meal={meal} foods={foods} close={() => setMeal(null)} save={(updated) => {
+    {meal ? <MealEditor meal={meal} catalog={catalog} close={() => setMeal(null)} save={(updated) => {
       setNutrition((old) => old ? { ...old, meals: old.meals.some((entry) => entry.id === updated.id) ? old.meals.map((entry) => entry.id === updated.id ? updated : entry) : [...old.meals, updated] } : old)
       setMeal(null)
     }} /> : null}
-    {food ? <FoodEditor food={food} close={() => setFood(null)} save={(updated) => {
-      setFoods((old) => old.some((entry) => entry.id === updated.id) ? old.map((entry) => entry.id === updated.id ? updated : entry) : [...old, updated])
+    {food ? <FoodEditor food={food} close={() => setFood(null)} save={async (input) => {
+      await catalog.save(input, food.id || undefined)
       setFood(null)
     }} /> : null}
   </>

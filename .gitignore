@@ -4,6 +4,7 @@ dist/
 dist-ssr/
 *.tsbuildinfo
 *.log
+packages/database/src/generated/
 
 .env
 .env.*

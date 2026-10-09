@@ -2,10 +2,13 @@ import { useId, useState } from 'react'
 import Button from '../../components/ui/Button'
 import { Modal } from '../../components/student/StudentUi'
 import styles from '../../components/student/Student.module.css'
-import { type CatalogFood, type Food, type Meal, type Nutrients } from './studentData'
+import { type Food, type Meal, type Nutrients } from './studentData'
 import { foodNutrientFields, formatFoodValue } from './foodDraft'
 import { calculateFoodNutrients, foodCalculationIssue, includeCatalogFood, isPositiveQuantity, linkCatalogFood, mealNutrients } from './nutritionCalculations'
 import { MealFoodSource, MealNutrients } from './MealNutrients'
+import type { Catalog } from './useCatalog'
+import type { CatalogRecord } from '../../api/catalog'
+import { CatalogBrowser } from './CatalogBrowser'
 
 function NutrientFields({ value, change }: { value: Nutrients; change: (value: Nutrients) => void }) {
   return <div className={styles.formGrid}>{foodNutrientFields.map(({ key, label }) => <label key={key} className={styles.nutrient} data-nutrient={key}>{label}
@@ -31,10 +34,11 @@ type MealDraft = Omit<Meal, 'foods'> & { foods: DraftFood[] }
 const draftFood = (food: Food): DraftFood => ({ ...food, quantity: String(food.quantity) })
 const quantityValue = (value: string) => value.trim() === '' ? NaN : Number(value)
 
-export function MealEditor({ meal, foods, close, save }: { meal: Meal; foods: CatalogFood[]; close: () => void; save: (meal: Meal) => void }) {
+export function MealEditor({ meal, catalog, close, save }: { meal: Meal; catalog: Catalog; close: () => void; save: (meal: Meal) => void }) {
+  const foods = catalog.state.status === 'success' ? catalog.state.data.items : []
   const [draft, setDraft] = useState<MealDraft>(() => ({ ...structuredClone(meal), foods: structuredClone(meal.foods).map(draftFood) }))
   const [dirty, setDirty] = useState(false)
-  const [catalogId, setCatalogId] = useState('')
+  const [selectedFood, setSelectedFood] = useState<CatalogRecord | null>(null)
   const [error, setError] = useState('')
   const formId = useId()
   const unitHintId = useId()
@@ -106,20 +110,26 @@ export function MealEditor({ meal, foods, close, save }: { meal: Meal; foods: Ca
         const id = crypto.randomUUID()
         edit((previous) => ({ ...previous, foods: [...previous.foods, { id, name: '', quantity: '100', unit: 'g' }] }))
       }}>Adicionar sem cadastro</Button></div>
-      {foods.length ? <div className={styles.formGrid}>
-        <label>Alimento cadastrado<select value={catalogId} onChange={(event) => setCatalogId(event.target.value)}><option value="">Selecionar alimento</option>{foods.map((food) => <option value={food.id} key={food.id}>{food.name}</option>)}</select></label>
-        <Button variant="secondary" disabled={!catalogId} onClick={() => {
-          const food = foods.find((item) => item.id === catalogId)
+      <CatalogBrowser catalog={catalog}>
+        <label>Alimento cadastrado<select value={selectedFood?.id ?? ''} onChange={(event) => setSelectedFood(foods.find(item => item.id === event.target.value) ?? null)}>
+          <option value="">Selecionar alimento</option>
+          {selectedFood && !foods.some(item => item.id === selectedFood.id) ? <option value={selectedFood.id}>{selectedFood.name} (selecionado em outra página)</option> : null}
+          {foods.map((food) => <option value={food.id} key={food.id}>{food.name}</option>)}
+        </select></label>
+      </CatalogBrowser>
+      <p className={styles.muted}>Use as páginas do catálogo acima para acessar todos os alimentos nos seletores de inclusão e vínculo abaixo.</p>
+      {selectedFood ? <p className={styles.muted}>Selecionado: {selectedFood.name}</p> : null}
+        <Button variant="secondary" disabled={!selectedFood} onClick={() => {
+          const food = selectedFood
           if (!food) return
           try {
             const entry = draftFood(includeCatalogFood(food, crypto.randomUUID()))
             edit((previous) => ({ ...previous, foods: [...previous.foods, entry] }))
-            setCatalogId('')
+            setSelectedFood(null)
           } catch (failure) {
             setError(failure instanceof Error ? failure.message : 'Confira o cadastro do alimento.')
           }
         }}>Incluir na refeição</Button>
-      </div> : <p className={styles.muted}>Cadastre um alimento na tela de alimentação para calcular seus nutrientes aqui.</p>}
       <p id={unitHintId} className={styles.muted}>Alimentos vinculados usam a unidade da referência, sem conversão. Alterar a quantidade da refeição não altera essa referência nem o cadastro.</p>
       {draft.foods.length === 0 ? <p className={styles.mealNotice}>Nenhum alimento adicionado. {draft.totalsMode === 'calculated' ? 'Inclua alimentos para obter os totais.' : 'Os totais manuais podem ser informados abaixo.'}</p> : null}
       {draft.totalsMode === 'calculated' && unlinked.length > 0 ? <div className={styles.mealNotice}>

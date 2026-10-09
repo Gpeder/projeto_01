@@ -1,19 +1,26 @@
 import type { CatalogFood, Food, Meal, Nutrients } from './studentData.ts'
+import type { CatalogRecord } from '../../api/catalog.ts'
 
 const units = ['g', 'ml', 'unidade', 'fatia', 'porção']
 export const emptyNutrients = (): Nutrients => ({ kcal: null, protein: null, carbs: null, fat: null })
 export const isPositiveQuantity = (value: number) => Number.isFinite(value) && value > 0
 const validNutrient = (value: number | null): value is number => value !== null && Number.isFinite(value) && value >= 0
 
-export function includeCatalogFood(catalog: CatalogFood, id: string): Food {
-  if (!isPositiveQuantity(catalog.amount) || !units.includes(catalog.unit)) {
+export function includeCatalogFood(catalog: CatalogFood | CatalogRecord, id: string): Food {
+  const amount = Number(catalog.amount)
+  if (!isPositiveQuantity(amount) || !units.includes(catalog.unit)) {
     throw new Error('Revise a quantidade e a unidade de referência do cadastro.')
   }
   return {
-    id, name: catalog.name, quantity: catalog.amount, unit: catalog.unit,
+    id, name: catalog.name, quantity: amount, unit: catalog.unit,
     snapshot: structuredClone({
       catalogId: catalog.id, name: catalog.name, brand: catalog.brand, preparation: catalog.preparation,
-      reference: { quantity: catalog.amount, unit: catalog.unit }, nutrients: catalog.nutrients,
+      reference: { quantity: amount, unit: catalog.unit }, nutrients: {
+        kcal: catalog.nutrients.kcal === null ? null : Number(catalog.nutrients.kcal),
+        protein: catalog.nutrients.protein === null ? null : Number(catalog.nutrients.protein),
+        carbs: catalog.nutrients.carbs === null ? null : Number(catalog.nutrients.carbs),
+        fat: catalog.nutrients.fat === null ? null : Number(catalog.nutrients.fat),
+      },
       source: catalog.usda ? 'usda' : 'manual', usda: catalog.usda,
     }),
   }
@@ -21,7 +28,7 @@ export function includeCatalogFood(catalog: CatalogFood, id: string): Food {
 
 // Uma troca de unidade reinicia a quantidade na referência, sem conversão.
 // O editor confirma essa substituição antes de chamar esta função.
-export function linkCatalogFood(food: Food, catalog: CatalogFood): Food {
+export function linkCatalogFood(food: Food, catalog: CatalogFood | CatalogRecord): Food {
   const linked = includeCatalogFood(catalog, food.id)
   return { ...linked, quantity: food.unit === linked.unit ? food.quantity : linked.quantity }
 }

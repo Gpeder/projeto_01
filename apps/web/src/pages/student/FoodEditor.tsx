@@ -4,8 +4,9 @@ import { Modal, Tabs } from '../../components/student/StudentUi'
 import styles from '../../components/student/Student.module.css'
 import type { CatalogFood } from './studentData'
 import type { ApiFood } from '../../api/foods'
-import { foodNutrientFields, formatFoodValue, hasFoodContent, importFood, needsReferenceReview, saveFoodDraft, toFoodDraft, type FoodDraft } from './foodDraft'
+import { foodNutrientFields, formatFoodValue, hasFoodContent, importFood, needsReferenceReview, toCatalogInput, toFoodDraft, type FoodDraft } from './foodDraft'
 import { useFoodSearch } from './useFoodSearch'
+import type { CatalogInput, CatalogRecord } from '../../api/catalog'
 
 const modes = [{ id: 'manual', label: 'Preencher manualmente' }, { id: 'usda', label: 'Buscar na USDA' }] as const
 
@@ -14,11 +15,12 @@ function referenceLabel(food: ApiFood) {
     ? formatFoodValue(food.reference.quantity, food.reference.unit) : 'Referência nutricional desconhecida'
 }
 
-export default function FoodEditor({ food, close, save }: { food: CatalogFood; close: () => void; save: (food: CatalogFood) => void }) {
+export default function FoodEditor({ food, close, save }: { food: CatalogFood | CatalogRecord; close: () => void; save: (input: CatalogInput) => Promise<void> }) {
   const [draft, setDraft] = useState(() => toFoodDraft(food))
   const currentDraft = useRef(draft)
   const nameInput = useRef<HTMLInputElement>(null)
   const submitting = useRef(false)
+  const [saving, setSaving] = useState(false)
   const [dirty, setDirty] = useState(false)
   const [mode, setMode] = useState<'manual' | 'usda'>('manual')
   const [query, setQuery] = useState('')
@@ -32,6 +34,7 @@ export default function FoodEditor({ food, close, save }: { food: CatalogFood; c
   const reviewRequired = needsReferenceReview(draft)
 
   function replaceDraft(next: FoodDraft) {
+    if (submitting.current) return
     currentDraft.current = next
     setDraft(next)
     setDirty(true)
@@ -39,21 +42,25 @@ export default function FoodEditor({ food, close, save }: { food: CatalogFood; c
   }
 
   function edit(next: FoodDraft) {
+    if (submitting.current) return
     replaceDraft({ ...next, usda: next.usda ? { ...next.usda, manuallyEdited: true, referenceReviewed: false } : undefined })
   }
 
   function switchMode(next: 'manual' | 'usda') {
+    if (submitting.current) return
     cancel()
     setMode(next)
   }
 
   function attemptClose() {
+    if (submitting.current) return
     if (dirty && !window.confirm('Descartar alterações não salvas?')) return
     cancel()
     close()
   }
 
   async function choose(result: ApiFood) {
+    if (submitting.current) return
     setNotice('')
     const selected = await select(result)
     if (!selected) return
@@ -67,14 +74,14 @@ export default function FoodEditor({ food, close, save }: { food: CatalogFood; c
   }
 
   return <Modal title={food.name ? 'Editar alimento' : 'Cadastrar alimento'} close={attemptClose}
-    footer={<><Button variant="secondary" onClick={attemptClose}>Cancelar</Button><Button type="submit" form={formId} disabled={loadingDetails || !draft.name.trim()}>Salvar alimento</Button></>}>
+    footer={<><Button variant="secondary" disabled={saving} onClick={attemptClose}>Cancelar</Button><Button type="submit" form={formId} loading={saving} loadingLabel="Salvando alimento…" disabled={loadingDetails || !draft.name.trim()}>Salvar alimento</Button></>}>
     <div className={styles.foodModes}><Tabs label="Como preencher o alimento" items={[...modes]} value={mode} onChange={switchMode}>
       {mode === 'manual' ? <p className={styles.muted}>Informe os nutrientes para a quantidade de referência escolhida.</p> : <section className={styles.foodSearch} aria-label="Busca na USDA">
-        <form className={styles.form} onSubmit={(event) => { event.preventDefault(); setNotice(''); void search(query) }}>
-          <label>Alimento na USDA<input type="search" required maxLength={200} value={query} aria-describedby={hintId} onChange={(event) => { cancel(); setQuery(event.target.value) }} /></label>
+        <form className={styles.form} onSubmit={(event) => { event.preventDefault(); if (submitting.current) return; setNotice(''); void search(query) }}>
+          <label>Alimento na USDA<input type="search" required disabled={saving} maxLength={200} value={query} aria-describedby={hintId} onChange={(event) => { cancel(); setQuery(event.target.value) }} /></label>
           <p id={hintId} className={styles.muted}>A busca inicial utiliza termos em inglês, como “rice cooked”.</p>
           <div className={styles.actions}>
-            <Button type="submit" loading={searching} loadingLabel="Buscando alimentos…" disabled={!query.trim()}>Buscar</Button>
+            <Button type="submit" loading={searching} loadingLabel="Buscando alimentos…" disabled={saving || !query.trim()}>Buscar</Button>
             {searching || loadingDetails ? <Button variant="ghost" onClick={cancel}>Cancelar consulta</Button> : null}
           </div>
         </form>
@@ -108,19 +115,21 @@ export default function FoodEditor({ food, close, save }: { food: CatalogFood; c
         </div>
       </section>}
     </Tabs></div>
-    <form id={formId} className={`${styles.form} ${styles.foodForm}`} onSubmit={(event) => {
+    <form id={formId} className={`${styles.form} ${styles.foodForm}`} aria-busy={saving} onSubmit={async (event) => {
       event.preventDefault()
       if (submitting.current || loadingDetails) return
       try {
-        const updated = saveFoodDraft(currentDraft.current)
+        const updated = toCatalogInput(currentDraft.current)
         submitting.current = true
+        setSaving(true)
+        setError('')
         cancel()
-        save(updated)
+        await save(updated)
       } catch (failure) {
-        submitting.current = false
         setError(failure instanceof Error ? failure.message : 'Confira os campos do alimento.')
-      }
+      } finally { submitting.current = false; setSaving(false) }
     }}>
+      <fieldset disabled={saving} className={styles.catalogFields}>
       {draft.usda ? <div className={styles.foodSource}>
         <p>{draft.usda.manuallyEdited ? 'Origem USDA · cadastro editado manualmente' : 'Importado da USDA · revise antes de salvar'}</p>
         <details><summary>Consultar dados originais da USDA</summary>
@@ -150,7 +159,8 @@ export default function FoodEditor({ food, close, save }: { food: CatalogFood; c
         <p>{draft.usda?.original.reference.quantity === null || draft.usda?.original.reference.unit === null ? 'A referência nutricional da USDA é desconhecida.' : 'A referência foi alterada em relação à USDA.'} Confira a quantidade, a unidade e cada nutriente antes de salvar. Não há conversão automática entre unidades.</p>
         <label className={styles.reviewCheck}><input type="checkbox" required checked={draft.usda?.referenceReviewed ?? false} onChange={(event) => replaceDraft({ ...draft, usda: draft.usda ? { ...draft.usda, referenceReviewed: event.target.checked } : undefined })} />Revisei os nutrientes para a quantidade e unidade informadas.</label>
       </div> : null}
-      <p className={styles.muted}>O cadastro fica disponível somente nesta sessão da página.</p>
+      <p className={styles.muted}>O alimento será salvo no catálogo ao confirmar. Consultar a USDA não salva automaticamente.</p>
+      </fieldset>
       {error ? <p role="alert" className={styles.error}>{error}</p> : null}
     </form>
   </Modal>

@@ -1,4 +1,10 @@
 const errors = {
+  CATALOG_INVALID_INPUT: { status: 400, message: 'Confira o nome, a quantidade, a unidade, os nutrientes e os dados de origem do alimento.' },
+  CATALOG_INVALID_DECIMAL: { status: 400, message: 'Informe valores não negativos, com até 35 dígitos inteiros e 30 casas decimais. A quantidade deve ser maior que zero.' },
+  CATALOG_INVALID_SOURCE: { status: 400, message: 'Confira a origem e os dados originais do alimento USDA.' },
+  CATALOG_REVIEW_REQUIRED: { status: 400, message: 'Revise os nutrientes para a quantidade e unidade informadas e confirme a revisão.' },
+  CATALOG_NOT_FOUND: { status: 404, message: 'Alimento cadastrado não encontrado. Atualize a lista e tente novamente.' },
+  CATALOG_UNAVAILABLE: { status: 503, message: 'Não foi possível acessar o catálogo. Tente novamente.' },
   INVALID_INPUT: { status: 400, message: 'Parâmetros inválidos.' },
   FOOD_NOT_FOUND: { status: 404, message: 'Alimento não encontrado.' },
   ROUTE_NOT_FOUND: { status: 404, message: 'Rota não encontrada.' },

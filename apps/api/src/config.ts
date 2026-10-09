@@ -30,3 +30,13 @@ export function loadConfig(): ApiConfig {
   }
   return validateConfig(process.env)
 }
+
+export function databaseUrl(env: NodeJS.ProcessEnv): string {
+  try {
+    const value = env.DATABASE_URL
+    if (!value) throw new Error()
+    const url = new URL(value)
+    if (!['postgresql:', 'postgres:'].includes(url.protocol) || !url.hostname || url.pathname.length < 2) throw new Error()
+    return value
+  } catch { throw new Error('Configure DATABASE_URL em apps/api/.env para o banco PostgreSQL exclusivo deste projeto.') }
+}

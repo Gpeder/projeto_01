@@ -5,6 +5,7 @@ React 19, TypeScript strict e Vite, com os componentes, temas e tokens existente
 ## Comunicação com a API de alimentos
 
 Na raiz do monorepo, execute em terminais separados:
+Prepare primeiro PostgreSQL e migrations conforme [API](../api/README.md#postgresql-local).
 
 ```sh
 pnpm dev:api
@@ -20,7 +21,7 @@ para `http://127.0.0.1:3001`. Se o backend usar outra porta, configure
 
 O proxy é uma configuração de desenvolvimento, não acompanha os arquivos do
 build. Fora dele, configure no servidor de hospedagem um proxy reverso de
-`/api/foods` para `/foods` da API. Para outro prefixo ou URL pública, defina
+`/api/*` para os endpoints da API, incluindo `/catalog/foods`. Para outro prefixo ou URL pública, defina
 `VITE_API_BASE_URL` no ambiente de compilação, por exemplo `/backend`, e gere
 novamente o build. Essa variável é pública; nunca coloque credenciais nela.
 Prefira frontend e API na mesma origem. Uma origem diferente exige uma política
@@ -32,7 +33,7 @@ Em `/alunos/gustavo/alimentacao`, o modal de cadastro oferece preenchimento
 manual ou busca na USDA. A busca ocorre somente ao acionar Buscar e utiliza
 termos em inglês. Os resultados são paginados e os detalhes são consultados
 somente após selecionar um alimento. O formulário fica editável para revisão,
-e o alimento é incluído no estado local apenas ao confirmar Salvar alimento.
+e o alimento é persistido pela API apenas ao confirmar Salvar alimento.
 
 Alternar o modo mantém o rascunho. Substituir dados já preenchidos exige
 confirmação. Busca e detalhes têm estados de carregamento separados,
@@ -95,8 +96,22 @@ mostra um convite para incluir alimentos, sem totais completos de zero.
 O total diário e o resumo do aluno usam o modo ativo de cada refeição. A comparação
 com o limite diário fica inconclusiva enquanto houver dados nutricionais incompletos.
 
-Os cadastros continuam no estado local da página do aluno. Recarregar a página
-ou sair dela perde esses dados; não há armazenamento permanente, banco ou login.
+O catálogo único é carregado de `GET /catalog/foods`; criação usa POST e edição
+usa PUT com o ID gerado pelo servidor. Carregamento, catálogo vazio e erro são
+estados distintos; há nova tentativa em falhas e navegação entre páginas.
+Nos seletores das refeições, a paginação dá acesso a todos os cadastros, incluindo
+os vínculos dos alimentos antigos; uma seleção permanece ao trocar de página.
+Salvar bloqueia envios duplicados, mostra loading, fecha somente após sucesso e
+atualiza o catálogo com a resposta do servidor. Falha preserva o rascunho para
+nova tentativa. Fechar e editar ficam bloqueados durante o envio.
+
+Os textos decimais retornados pela API são mantidos nos rascunhos sem passar
+por Number. A conversão para o tipo numérico atual ocorre ao copiar o alimento
+para a refeição, mantendo o comportamento dos cálculos existentes. Nutrientes
+com precisão acima de 30 casas ou 35 dígitos inteiros são rejeitados, sem arredondar.
+
+Alimentos permanecem após recarregar a página e reiniciar a API. Planos, refeições,
+treinos e demais dados continuam temporários. Não há login nem localStorage paralelo.
 
 ## Verificação
 

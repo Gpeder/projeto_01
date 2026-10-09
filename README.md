@@ -15,6 +15,7 @@ Execute os comandos na raiz do projeto:
 
 ```sh
 pnpm install
+pnpm db:generate
 pnpm dev
 ```
 
@@ -32,21 +33,32 @@ O backend em `apps/api` usa Node.js, TypeScript e Fastify para consultar a USDA
 FoodData Central. O cadastro de alimentos na área de alimentação do aluno consulta
 essa API e também permite preenchimento manual.
 
-Copie `apps/api/.env.example` para `apps/api/.env` e preencha `USDA_API_KEY`
-manualmente. O arquivo `.env` está ignorado pelo Git. Na raiz, execute:
+O catálogo único local persiste alimentos manuais e importados em PostgreSQL,
+via Prisma 7.10.0. Planos, refeições, treinos e demais dados continuam temporários.
+Configure bancos exclusivos de desenvolvimento e testes conforme
+[apps/api/README.md](apps/api/README.md#postgresql-local).
+Se `apps/api/.env` já existir, preserve seu conteúdo e acrescente as variáveis
+ausentes. Preencha `USDA_API_KEY`, `DATABASE_URL` e `TEST_DATABASE_URL` somente
+nesse arquivo, ignorado pelo Git. Na raiz, execute:
 
 ```sh
+pnpm db:generate
+pnpm db:migrate
 pnpm dev:api
 ```
 
 Execute `pnpm dev` em outro terminal para abrir o frontend. O proxy de
-desenvolvimento encaminha `/api/foods` para `/foods` no backend.
+desenvolvimento encaminha `/api/*` para os endpoints do backend.
 
 O servidor atende em `http://127.0.0.1:3001`. Os endpoints são
 `GET /foods?query=rice&page=1` e `GET /foods/:id`.
 A busca usa os termos originais da USDA, predominantemente em inglês.
+O catálogo usa `GET /catalog/foods`, `POST /catalog/foods` e
+`PUT /catalog/foods/:id`. Consultar a USDA não grava alimentos automaticamente.
 
-`pnpm build`, `pnpm lint` e `pnpm typecheck` verificam os dois aplicativos.
+`pnpm build`, `pnpm lint` e `pnpm typecheck` verificam os aplicativos e o pacote de banco.
+Após aplicar migrations no banco exclusivo de testes, `pnpm test:db` verifica
+a persistência real sem limpar dados existentes.
 `pnpm test:api` executa os testes locais; `pnpm --filter api test:live` verifica
 busca e detalhes na USDA com a chave configurada. Instruções, contrato e limites
 estão em [apps/api/README.md](apps/api/README.md). Os testes da integração web
@@ -220,11 +232,10 @@ recebe foco. As transições respeitam `prefers-reduced-motion`.
 
 - `apps/web`: frontend React + TypeScript + Vite.
 - `apps/api`: backend Node.js + TypeScript + Fastify, com integração USDA.
-- `packages`: reservado para pacotes futuros.
+- `packages/database`: schema, migrations e Prisma Client, importado somente pelo backend.
 - `docs`: reservado para documentação.
 - `pnpm-lock.yaml`: único lockfile, mantido na raiz.
 
 Planejados para etapas futuras, ainda não criados:
 
-- `packages/database`: Prisma + PostgreSQL.
 - `apps/mobile`: Flutter.

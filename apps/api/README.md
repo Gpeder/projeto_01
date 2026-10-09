@@ -4,6 +4,8 @@ Backend mínimo em Node.js 22.23.2 ou superior, TypeScript strict e Fastify.
 Consulta a FoodData Central e expõe um contrato próprio. A execução é local,
 em `127.0.0.1`. O frontend consulta estes endpoints pelo proxy `/api` do Vite
 durante o desenvolvimento; a chave permanece exclusivamente neste backend.
+O catálogo de alimentos manuais e USDA é persistido separadamente em PostgreSQL
+local, com Prisma 7.10.0. Não há persistência de outras áreas nem autenticação.
 
 ## Configuração e execução
 
@@ -11,10 +13,12 @@ Na raiz do monorepo:
 
 ```sh
 pnpm install
+pnpm db:generate
 cp -n apps/api/.env.example apps/api/.env
 ```
 
-Edite **`apps/api/.env`** manualmente e preencha `USDA_API_KEY`. Não cole a chave
+Edite **`apps/api/.env`** manualmente e preencha `USDA_API_KEY`, `DATABASE_URL`
+e `TEST_DATABASE_URL`, preservando as variáveis já configuradas. Não cole a chave
 em comandos, URLs, mensagens ou arquivos versionados. `PORT` é opcional e tem
 padrão `3001`. O carregamento usa exclusivamente o caminho do `.env` do backend;
 variáveis já presentes no processo têm precedência. A chave e a porta são
@@ -28,7 +32,7 @@ pnpm dev:api
 Depois de alterar o `.env`, reinicie o processo. Para executar o código compilado:
 
 ```sh
-pnpm --filter api build
+pnpm build
 pnpm start:api
 ```
 
@@ -36,6 +40,96 @@ O `.gitignore` da raiz já exclui `.env` em qualquer aplicativo e permite
 `.env.example`. O backend envia a chave no header `X-Api-Key`, exclusivamente
 para a origem fixa da USDA, e rejeita redirecionamentos. Logs não incluem o
 objeto de configuração, headers, URLs externas ou erros brutos do provedor.
+
+## PostgreSQL local
+
+Use uma instalação local de PostgreSQL (validado com 16.14). No Linux Mint/Ubuntu,
+se faltar o servidor, instale `postgresql` com o gerenciador de pacotes do sistema.
+Não reutilize banco ou usuário de outro projeto. Verifique os nomes antes de criar:
+
+```sh
+pg_lsclusters
+# Inicie somente se o cluster 16/main estiver parado:
+sudo pg_ctlcluster 16 main start
+sudo -u postgres createuser --pwprompt --no-superuser --no-createdb --no-createrole projeto_catalog_dev
+sudo -u postgres createdb --owner=projeto_catalog_dev projeto_catalog_dev
+sudo -u postgres createuser --pwprompt --no-superuser --no-createdb --no-createrole projeto_catalog_test
+sudo -u postgres createdb --owner=projeto_catalog_test projeto_catalog_test
+```
+
+As senhas são solicitadas interativamente. Configure as URLs em `apps/api/.env`
+usando os modelos de `.env.example`; caracteres especiais nas credenciais devem
+ser codificados para URL. Não há acesso ao banco pelo frontend. A ausência de
+`DATABASE_URL` impede iniciar a API; indisponibilidade do banco retorna erro 503
+ao consultar/salvar o catálogo, nunca uma lista vazia. A USDA mantém rotas próprias.
+
+Na raiz:
+
+```sh
+pnpm db:generate
+pnpm db:migrate
+pnpm dev:api
+# Em outro terminal:
+pnpm dev
+```
+
+`packages/database/prisma.config.ts` carrega explicitamente `apps/api/.env` com
+o carregador nativo do Node. A URL fica nessa configuração, não no schema Prisma.
+O Client usa `@prisma/adapter-pg`, com timeout de conexão de 5 segundos. O código
+gerado é ignorado pelo Git; `db:generate` gera e compila o pacote antes do uso.
+`pnpm build` também respeita a ordem de dependências do workspace.
+
+`db:migrate` usa **migrate deploy**, aplicando somente migrations versionadas.
+A migration inicial foi gerada com `migrate diff --from-empty --to-schema` e
+inclui restrições de integridade. Não há `db push`, reset, drop ou shadow database.
+Mudanças futuras no schema devem incluir uma nova migration SQL revisada;
+nunca edite uma migration já aplicada. Só `apps/mobile` (Flutter) fica para o futuro.
+
+Para preparar **somente o banco de testes** sem imprimir a URL, execute na raiz:
+
+```sh
+pnpm --filter api exec node --import tsx test/migrateTestDatabase.ts
+pnpm test:db
+```
+
+Esses comandos exigem `TEST_DATABASE_URL` com banco `projeto_catalog_test` e
+recusam o mesmo destino de `DATABASE_URL`, inclusive com credenciais diferentes.
+Os testes acrescentam registros próprios e os preservam; não limpam tabelas nem
+dados de desenvolvimento. Credenciais de testes devem ter acesso apenas ao banco
+de testes. Sem configuração, a suíte falha explicitamente, sem fallback.
+
+## Catálogo persistido
+
+| Método e rota | Comportamento |
+| --- | --- |
+| `GET /catalog/foods?page=1&pageSize=20` | Página (1–999999), limite 1–50, ordenação `createdAt DESC, id DESC`; retorna `items`, `page`, `pageSize`, `totalItems`, `totalPages`. |
+| `POST /catalog/foods` | Valida e cria; responde 201 com registro e UUID gerado no servidor. |
+| `PUT /catalog/foods/:id` | Substitui os campos editáveis; preserva ID/criação; responde 200 ou 404. |
+
+O corpo de POST/PUT contém `name` (até 1000 caracteres), `brand` e `preparation`
+(texto até 300 ou null), `amount`, `unit`, `nutrients`, `source` (`manual`/`usda`)
+e, somente para USDA, `usda`. Campos adicionais são rejeitados.
+
+`amount` e cada nutriente (`kcal`, `protein`, `carbs`, `fat`) usam **strings
+decimais** no JSON. Nutrientes ausentes são null; zero é `"0"`. Armazenamento
+`NUMERIC(65,30)`/Prisma Decimal: até 35 dígitos inteiros e 30 casas decimais,
+com rejeição de excesso de precisão ou faixa, sem truncar. A quantidade deve
+ser positiva; nutrientes não negativos. São aceitas g, ml, unidade, fatia e porção.
+Respostas usam texto decimal sem expoente. Datas são ISO 8601 em UTC.
+
+`usda` contém `original` (o contrato normalizado já usado em `/foods/:id`,
+não a resposta completa USDA), `manuallyEdited`, `modifiedFields` e
+`referenceReviewed`. O original preserva os números e nulls recebidos da USDA;
+tem schema restrito e teto de 32 KiB. O corpo total tem teto de 64 KiB.
+O servidor calcula os campos diferentes da origem e exige revisão quando a
+referência é desconhecida ou foi alterada. `fdcId` é derivado do original na
+resposta; não é único, permitindo cadastros personalizados do mesmo alimento.
+
+Somente confirmar Salvar alimento grava. Não há exclusão nem gravação automática
+ao consultar a USDA. Erros mantêm `{ "error": { "code", "message" } }`, com
+mensagens próprias em português: 400 para entrada/revisão inválida, 404 para
+registro inexistente, 503 para falha no acesso ao catálogo. Detalhes do banco
+e credenciais não são retornados.
 
 ## Endpoints
 
@@ -149,7 +243,8 @@ individualmente para completar cada resultado.
 
 Erros usam `{ "error": { "code": "...", "message": "..." } }`, sem stacks,
 credenciais ou corpo de erro externo. O serviço depende da disponibilidade,
-das cotas e dos dados publicados pela USDA. Não há cache ou armazenamento local.
+das cotas e dos dados publicados pela USDA. Consultas USDA não têm cache;
+somente os alimentos confirmados pelo usuário entram no catálogo persistido.
 
 ## Verificações
 
@@ -160,6 +255,7 @@ pnpm lint
 pnpm typecheck
 pnpm build
 pnpm test:api
+pnpm test:db
 pnpm --filter api test:live
 ```
 
@@ -180,7 +276,8 @@ automaticamente por `test:api` e consome duas consultas da cota.
 `routes.ts` e `schema.ts` definem HTTP e validação; `controller.ts` recebe e
 responde; `service.ts` organiza as operações; `normalize.ts` constrói o contrato;
 `usda/client.ts` concentra o acesso externo. São módulos e funções simples,
-sem banco ou repository.
+sem classes ou camadas genéricas. `catalog/` segue routes/schema, controller,
+service e repository; somente este último acessa o Client de `packages/database`.
 
 - [Guia da API USDA](https://fdc.nal.usda.gov/api-guide/)
 - [Especificação da API](https://fdc.nal.usda.gov/api-spec/fdc_api.html)

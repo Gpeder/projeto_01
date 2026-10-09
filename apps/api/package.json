@@ -13,9 +13,11 @@
     "lint": "oxlint src test",
     "typecheck": "tsc --noEmit",
     "test": "node --import tsx --test test/*.test.ts",
-    "test:live": "node --import tsx test/live-usda.ts"
+    "test:live": "node --import tsx test/live-usda.ts",
+    "test:db": "node --import tsx --test test/catalog.database.ts"
   },
   "dependencies": {
+    "@projeto/database": "workspace:*",
     "fastify": "^5.0.0"
   },
   "devDependencies": {

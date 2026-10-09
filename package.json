@@ -7,6 +7,9 @@
     "dev:api": "pnpm --filter ./apps/api dev",
     "start:api": "pnpm --filter ./apps/api start",
     "test:api": "pnpm --filter ./apps/api test",
+    "db:generate": "pnpm --filter @projeto/database build",
+    "db:migrate": "pnpm --filter @projeto/database migrate",
+    "test:db": "pnpm --filter ./apps/api test:db",
     "build": "pnpm -r build",
     "lint": "pnpm -r lint",
     "typecheck": "pnpm -r typecheck"
